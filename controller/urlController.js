@@ -1,6 +1,7 @@
 import base62 from '@sindresorhus/base62';
-import urlModel from "../models/urlModel.js";
 import crypto from "crypto"
+import urlModel from "../models/urlModel.js";
+import { cacheUrl,getCachedUrl } from "../services/urlServices.js";
 
 
 
@@ -38,16 +39,24 @@ export async function createUrl(req, res) {
 
 
 export async function getUrl(req, res) {
-    try {
-        let longUrl = await urlModel.getUrlByID(req.params.urlId)
-        if (longUrl == null) {
-            res.status(404).json({ message: "url not found" })
+    let longUrl = await getCachedUrl(req.params.urlId)
+    if (longUrl == null) {
+        try {
+            longUrl = await urlModel.getUrlByID(req.params.urlId)
+            if (longUrl == null) {
+                res.status(404).json({ message: "url not found" })
+                return
+            }
+            await cacheUrl(req.params.urlId, longUrl)
+            res.redirect(longUrl)
+            return
+        } catch (error) {
+            res.status(500).json({ message: "internal server error" })
+            console.error("error getting a url: ", error)
             return
         }
-        res.redirect(longUrl)
-        return
-    } catch (error) {
-        res.status(500).json({ message: "internal server error" })
-        console.error("error getting a url: ", error)
     }
+    res.redirect(longUrl)
+    return
+    
 }

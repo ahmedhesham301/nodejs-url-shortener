@@ -1,9 +1,11 @@
 import express from 'express'
 import morgan from 'morgan'
 import { initDB } from "./database/postgresql.js";
+import { initRedis } from "./database/redis.js";
 import router from "./routes/urlRoutes.js";
 
-initDB()
+await initDB()
+await initRedis()
 const app = express()
 app.use(morgan('dev'))
 app.use(express.json())

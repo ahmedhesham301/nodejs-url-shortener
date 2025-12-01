@@ -12,9 +12,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@redis/client": "^5.10.0",
     "@sindresorhus/base62": "^1.0.0",
     "express": "^5.1.0",
-    "ioredis": "^5.8.2",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.11",
     "pg": "^8.16.3",
