@@ -3,7 +3,7 @@ import { z } from "zod";
 const reqBodySchema = z.object({
     url: z.url()
 })
-const reqParamsSchema = z.string().regex(/^\d+$/);
+const reqParamsSchema = z.string().regex(/^[0-9A-Za-z]+$/);
 export async function validateBody(req, res, next) {
     try {
         await reqBodySchema.parseAsync(req.body)

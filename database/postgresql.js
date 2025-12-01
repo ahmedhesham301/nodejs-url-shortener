@@ -4,9 +4,10 @@ export const pool = new Pool()
 
 export async function initDB() {
     const query = `CREATE TABLE IF NOT EXISTS urls (
-	  id SERIAL PRIMARY KEY,
+	  id VARCHAR PRIMARY KEY,
 	  url VARCHAR NOT NULL
-	);`
+	);
+    `
     try {
         await pool.query(query)
     } catch (error) {

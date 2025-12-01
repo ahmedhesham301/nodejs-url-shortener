@@ -1,13 +1,13 @@
 import { pool } from "../database/postgresql.js";
 
-async function save(url) {
+async function save(id, url) {
     const query = {
         name: 'insert-url',
-        text: 'INSERT INTO urls(url) VALUES($1) RETURNING id;',
-        values: [url]
+        text: 'INSERT INTO urls(id,url) VALUES($1, $2);',
+        values: [id, url]
     }
-    const result = await pool.query(query)
-    return result.rows[0].id
+    await pool.query(query)
+    return
 }
 
 async function getUrlByID(urlID) {
