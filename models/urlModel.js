@@ -1,16 +1,16 @@
 import { pool } from "../database/postgresql.js";
 
-async function save(id, url) {
+async function save(id, userID,url) {
     const query = {
         name: 'insert-url',
-        text: 'INSERT INTO urls(id,url) VALUES($1, $2);',
-        values: [id, url]
+        text: 'INSERT INTO urls(id, user_id,url) VALUES($1, $2, $3);',
+        values: [id, userID, url]
     }
     await pool.query(query)
     return
 }
 
-async function getUrlByID(urlID) {
+async function findByID(urlID) {
     const query = {
         name: 'get-url-by-id',
         text: 'SELECT * FROM urls WHERE id = ($1);',
@@ -27,5 +27,5 @@ async function getUrlByID(urlID) {
 
 export default {
     save,
-    getUrlByID
+    findByID
 }

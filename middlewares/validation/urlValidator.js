@@ -30,6 +30,6 @@ export async function validateParams(req,res,next) {
             return
         }
         res.status(500).json({ message: "internal server error" })
-        console.error("error validating request params: ", error)
+        console.error("error validating url request params: ", error)
     }
 }

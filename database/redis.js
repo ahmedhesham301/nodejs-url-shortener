@@ -11,9 +11,9 @@ export const redisClient = await createClient({
 
 export async function initRedis() {
     try {
-        redisClient.connect()
+        await redisClient.connect()
     } catch (error) {
-        console.error("Failed to connect to Redis:", err);
+        console.error("Failed to connect to Redis:", error);
         process.exit(2)
     }
 }
