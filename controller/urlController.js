@@ -1,5 +1,5 @@
 import base62 from '@sindresorhus/base62';
-import crypto from "crypto"
+import crypto from "node:crypto"
 import { save, findByID, getUrlsByUserID } from "../models/urlModel.js";
 import { cacheUrl, getCachedUrl } from "../services/urlServices.js";
 
