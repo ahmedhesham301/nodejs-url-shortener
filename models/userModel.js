@@ -7,7 +7,6 @@ export async function save(email, passwordHash) {
         values: [email, passwordHash]
     }
     await pool.query(query)
-    return
 }
 
 
