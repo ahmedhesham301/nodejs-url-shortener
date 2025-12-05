@@ -16,7 +16,6 @@ export async function findByID(urlID) {
         values: [urlID]
     }
     const result = await pool.query(query)
-    // console.log(result);
 
     if (result.rowCount == 0) {
         return null
