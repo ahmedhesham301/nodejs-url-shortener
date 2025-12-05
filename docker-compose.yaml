@@ -7,6 +7,7 @@ services:
     environment:
       REDIS_ARGS: "--requirepass 1234"
     restart: unless-stopped
+
   db:
     image: postgres:18
     environment:
@@ -24,3 +25,23 @@ services:
     ports:
       - 81:80
     restart: unless-stopped
+
+  prometheus:
+    image: "prom/prometheus:latest"
+    hostname: prometheus
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      # - ./rules:/rules
+      # - ./data:/prometheus/data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'

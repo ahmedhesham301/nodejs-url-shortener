@@ -49,6 +49,9 @@ export async function getUrl(req, res) {
             }
             await cacheUrl(req.params.urlId, longUrl)
             res.redirect(longUrl)
+
+            
+            
             return
         } catch (error) {
             res.status(500).json({ message: "internal server error" })
@@ -77,4 +80,4 @@ export async function getUserUrls(req, res) {
         count: urls.length,
         urls: urls
     })
-} authenticated
+}

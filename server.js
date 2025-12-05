@@ -5,17 +5,25 @@ import { initRedis } from "./database/redis.js";
 import urlRouter from "./routes/urlRoutes.js";
 import authRouter from "./routes/authRoutes.js"
 import { sessionMiddleware } from "./middlewares/session.js";
+import { metricsMiddleware } from "./middlewares/metrics.js";
+import { register } from "prom-client";
 
 await initDB()
 await initRedis()
 const app = express()
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(metricsMiddleware)
 app.use(sessionMiddleware)
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+})
 app.use(authRouter)
 app.use(urlRouter)
 
 
 
 
-app.listen(8080)
+
+app.listen(8080,'0.0.0.0')

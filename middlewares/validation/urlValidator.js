@@ -11,8 +11,7 @@ export async function validateBody(req, res, next) {
     } catch (error) {
         if (error instanceof z.ZodError) {
             res.status(400).json({ message: "Invalid URL format", errors: error.errors })
-            console.log(error);
-            
+            console.error(error);
             return
         }
         res.status(500).json({ message: "internal server error" })

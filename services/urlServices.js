@@ -6,5 +6,5 @@ export async function getCachedUrl(urlID) {
 }
 
 export async function cacheUrl(urlID, url) {
-    await redisClient.set(`url:${urlID}`, url, { expiration: { type: "EX", value: 60 } })
+    await redisClient.set(`url:${urlID}`, url, { expiration: { type: "EX", value: 24 * 60 * 60 } })
 }
