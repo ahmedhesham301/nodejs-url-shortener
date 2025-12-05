@@ -60,8 +60,6 @@ export async function getUrl(req, res) {
         }
     }
     res.redirect(longUrl)
-    return
-
 }
 
 
