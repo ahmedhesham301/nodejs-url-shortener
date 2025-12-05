@@ -7,7 +7,6 @@ export async function save(id, userID,url) {
         values: [id, userID, url]
     }
     await pool.query(query)
-    return
 }
 
 export async function findByID(urlID) {
