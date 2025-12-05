@@ -16,12 +16,14 @@ A full-featured URL shortener service built with Node.js, Express, PostgreSQL, a
 ## Technologies & Tools
 
 ### Core Technologies
+
 - **Node.js 24** - JavaScript runtime environment
 - **Express.js 5.1.0** - Web application framework
 - **PostgreSQL 18** - Relational database for persistent storage
 - **Redis** - In-memory data store for caching and session management
 
 ### Libraries & Frameworks
+
 - **bcrypt** - Password hashing and verification
 - **express-session** - Session middleware for Express
 - **connect-redis** - Redis session store for express-session
@@ -33,6 +35,7 @@ A full-featured URL shortener service built with Node.js, Express, PostgreSQL, a
 - **morgan** - HTTP request logger middleware
 
 ### DevOps & Monitoring
+
 - **Docker** - Containerization platform
 - **Docker Compose** - Multi-container Docker application orchestration
 - **Prometheus** - Metrics collection and monitoring system
@@ -41,6 +44,7 @@ A full-featured URL shortener service built with Node.js, Express, PostgreSQL, a
 - **nodemon** - Development server with auto-reload
 
 ### Concepts & Patterns
+
 - **MVC Architecture** - Model-View-Controller pattern separation
 - **Middleware Pattern** - Request/response processing pipeline
 - **Session-based Authentication** - Server-side session management
@@ -140,6 +144,7 @@ docker-compose up -d
 ```
 
 This will start:
+
 - **PostgreSQL** on port `5432`
 - **Redis Stack** on port `6379` (with RedisInsight on port `8001`)
 - **pgAdmin** on port `81`
@@ -189,6 +194,7 @@ The application will start on `http://localhost:8080`.
 ### Authentication Endpoints
 
 #### Register User
+
 ```http
 POST /auth/register
 Content-Type: application/json
@@ -200,6 +206,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User registered successfully"
@@ -207,6 +214,7 @@ Content-Type: application/json
 ```
 
 #### Login
+
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -218,6 +226,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "login successful"
@@ -229,6 +238,7 @@ Content-Type: application/json
 ### URL Endpoints
 
 #### Create Short URL (Authenticated)
+
 ```http
 POST /create
 Content-Type: application/json
@@ -240,6 +250,7 @@ Cookie: connect.sid=<session-id>
 ```
 
 **Response:**
+
 ```json
 {
   "id": "abc123",
@@ -249,12 +260,14 @@ Cookie: connect.sid=<session-id>
 ```
 
 #### Get User's URLs (Authenticated)
+
 ```http
 GET /urls
 Cookie: connect.sid=<session-id>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "urls found",
@@ -273,6 +286,7 @@ Cookie: connect.sid=<session-id>
 ```
 
 #### Redirect to Original URL
+
 ```http
 GET /:urlId
 ```
@@ -282,11 +296,13 @@ GET /:urlId
 ### Metrics Endpoint
 
 #### Prometheus Metrics
+
 ```http
 GET /metrics
 ```
 
 Returns Prometheus-formatted metrics including:
+
 - `url_shortener_http_request_total` - Total HTTP requests counter
 - `url_shortener_http_request_duration_seconds` - Request duration histogram
 
@@ -295,6 +311,7 @@ Returns Prometheus-formatted metrics including:
 ### Prometheus
 
 Access Prometheus at `http://localhost:9090` to:
+
 - View collected metrics
 - Query metrics using PromQL
 - Configure alerting rules
@@ -304,6 +321,7 @@ The Prometheus configuration is located in `configs/prometheus.yml` and scrapes 
 ### Grafana
 
 Access Grafana at `http://localhost:3000`:
+
 - Default login: `admin` / `admin` (change on first login)
 - Add Prometheus as a data source: `http://prometheus:9090`
 - Create dashboards to visualize application metrics
@@ -311,6 +329,7 @@ Access Grafana at `http://localhost:3000`:
 ### pgAdmin
 
 Access pgAdmin at `http://localhost:81`:
+
 - Email: `ahmed.hesham.farag@gmail.com`
 - Password: `1234`
 - Add PostgreSQL server:
@@ -322,6 +341,7 @@ Access pgAdmin at `http://localhost:81`:
 ### RedisInsight
 
 Access RedisInsight at `http://localhost:8001` to:
+
 - View cached URLs
 - Monitor session data
 - Inspect Redis keys and values
@@ -331,12 +351,14 @@ Access RedisInsight at `http://localhost:8001` to:
 ### Database Schema
 
 **users table:**
+
 - `id` (SERIAL PRIMARY KEY)
 - `email` (VARCHAR(255) UNIQUE NOT NULL)
 - `password_hash` (VARCHAR(255) NOT NULL)
 - `created_at` (TIMESTAMP DEFAULT now())
 
 **urls table:**
+
 - `id` (VARCHAR PRIMARY KEY) - base62 encoded short URL ID
 - `user_id` (INTEGER NOT NULL REFERENCES users(id))
 - `url` (VARCHAR NOT NULL) - original long URL
