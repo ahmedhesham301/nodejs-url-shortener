@@ -426,12 +426,3 @@ The project uses ES6 modules (`"type": "module"` in package.json). All imports u
 ### Port Conflicts
 
 If ports are already in use, modify `docker-compose.yaml` to use different ports.
-
-## License
-
-ISC
-
-## Author
-
-Ahmed Hesham Farag
-
