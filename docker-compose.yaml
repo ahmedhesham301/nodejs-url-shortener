@@ -1,15 +1,43 @@
 services:
+  server:
+    build: .
+    hostname: server
+    ports:
+      - 8080:8080
+    environment:
+      - PGHOST=db
+      - PGPASSWORD=1234
+      - PGUSER=postgres
+      - PGDATABASE=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - SESSION_SECRET=sus
+      - NODE_ENV=dev
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-stack:
+        condition: service_healthy
   redis-stack:
     image: redis/redis-stack:latest
+    hostname: redis
     ports:
       - "6379:6379"
       - "8001:8001"
     environment:
       REDIS_ARGS: "--requirepass 1234"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a 1234 ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
   db:
     image: postgres:18
+    hostname: db
     environment:
       - POSTGRES_PASSWORD=1234
     ports:
@@ -17,6 +45,11 @@ services:
     restart: unless-stopped
     volumes:
       - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   pg_admin:
     image: dpage/pgadmin4:latest
     container_name: pg_admin
