@@ -3,26 +3,8 @@ import { Pool } from "pg"
 export const pool = new Pool()
 
 export async function initDB() {
-    const query = `
-    CREATE TYPE monitoring_type AS ENUM ('none', 'basic', 'detailed');
-    CREATE TYPE plan_type AS ENUM ('free', 'basic', 'pro');
-    CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password_hash VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT now()
-        plan plan_type NOT NULL,
-        plan_expiration DATE NOT NULL,
-    );
-    CREATE TABLE IF NOT EXISTS urls (
-	  id VARCHAR PRIMARY KEY,
-      user_id INTEGER NOT NULL REFERENCES users(id),
-	  url VARCHAR NOT NULL,
-      monitoring monitoring_type NOT NULL
-	);
-    `
     try {
-        await pool.query(query)
+        await pool.connect()
     } catch (error) {
         console.error("error initializing the db: ", error)
         process.exit(1)

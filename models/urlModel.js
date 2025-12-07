@@ -1,10 +1,10 @@
 import { pool } from "../database/postgresql.js";
 
-export async function save(id, userID,url) {
+export async function save(id, userID, url, monitoringType) {
     const query = {
         name: 'insert-url',
-        text: 'INSERT INTO urls(id, user_id,url) VALUES($1, $2, $3);',
-        values: [id, userID, url]
+        text: 'INSERT INTO urls(id, user_id, url, monitoring) VALUES($1, $2, $3, $4);',
+        values: [id, userID, url, monitoringType]
     }
     await pool.query(query)
 }
@@ -20,7 +20,7 @@ export async function findByID(urlID) {
     if (result.rowCount == 0) {
         return null
     }
-    return result.rows[0].url
+    return result.rows[0]
 }
 
 export async function getUrlsByUserID(userID) {

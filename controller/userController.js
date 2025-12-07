@@ -21,8 +21,11 @@ export async function register(req, res) {
 export async function login(req, res) {
     try {
         let userData = await authenticateUser(req.body.email, req.body.password)
+        
         req.session.userID = userData.id
         req.session.email = userData.email
+        req.session.plan = userData.plan
+        req.session.planExpiration = userData.planExpiration
         
         res.status(200).json({ message: "login successful"})
     } catch (error) {
