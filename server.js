@@ -15,7 +15,7 @@ const app = express()
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
-
+ 
 app.use(express.json())
 app.use(metricsMiddleware)
 app.use(sessionMiddleware)
@@ -23,7 +23,7 @@ app.get('/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
 })
-    
+
 app.use(authRouter)
 app.use(urlRouter)
 
