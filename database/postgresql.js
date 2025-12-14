@@ -4,6 +4,14 @@ import { logger } from "../logger/logger.js";
 export const pool = new Pool()
 
 export async function initDB() {
+    pool.on("error", (err) => {
+        logger.error("PostgreSQL pool error", {
+            reason: err.message,
+            code: err.code,
+            cause: err.cause,
+            stack: err.stack
+        })
+    })
     try {
         await pool.connect()
     } catch (error) {
@@ -15,11 +23,4 @@ export async function initDB() {
     }
 }
 
-pool.on("error", (err) =>{
-    logger.error("PostgreSQL pool error" ,{
-        reason: err.message,
-        code: err.code,
-        cause: err.cause,
-        stack: err.stack
-    })
-})
+

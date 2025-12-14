@@ -20,4 +20,4 @@ export async function initRedis() {
         })
         process.exit(2)
     }
-}   
+}
