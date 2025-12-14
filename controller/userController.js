@@ -1,4 +1,6 @@
 import { registerUser, authenticateUser } from "../services/userServices.js";
+import { logger } from "../logger/logger.js";
+
 
 export async function register(req, res) {
     try {
@@ -14,7 +16,10 @@ export async function register(req, res) {
             return
         }
         res.status(500).json({ message: "internal server error" })
-        console.error(`error registering user: `, error)
+        logger.error("error registering user.", {
+            reason: error.message,
+            stack: error.stack
+        })
     }
 }
 
@@ -37,7 +42,10 @@ export async function login(req, res) {
         }
         else {
             res.status(500).json({ message: "internal server error" })
-            console.error("error logging in user: ", error)
+            logger.error("error logging in user.", {
+                reason: error.message,
+                stack: error.stack
+            })
         }
     }
 }

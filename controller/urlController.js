@@ -2,7 +2,7 @@ import base62 from '@sindresorhus/base62';
 import crypto from "node:crypto"
 import { save, findByID, getUrlsByUserID } from "../models/urlModel.js";
 import { cacheUrl, getCachedUrl } from "../services/urlServices.js";
-
+import { logger } from "../logger/logger.js";
 
 
 export async function createUrl(req, res) {
@@ -22,17 +22,21 @@ export async function createUrl(req, res) {
             if (error.code === '23505') {
                 if (tries == 1) {
                     res.status(500).json({ message: "internal server error" })
-                    console.error(`error creating url after many tries: `, error)
+                    logger.error("error creating url.", {
+                        reason: "tried creating url for 3 times but couldn't find an unused id"
+                    })
                     return
                 }
                 tries -= 1
             }
             else {
                 res.status(500).json({ message: "internal server error" })
-                console.error("error creating url: ", error)
+                logger.error("error creating url.", {
+                    reason: error.message,
+                    stack: error.stack
+                })
                 return
             }
-
         }
     }
 }
@@ -45,17 +49,16 @@ export async function getUrl(req, res) {
             urlRecord = await findByID(req.params.urlId)
             if (urlRecord == null) {
                 res.status(404).json({ message: "url not found" })
+                logger.info("url not found", { code: 404, path: req.params.urlId })
                 return
             }
             await cacheUrl(req.params.urlId, urlRecord.url,urlRecord.monitoring)
             res.redirect(urlRecord.url)
-
-            
-            
             return
         } catch (error) {
             res.status(500).json({ message: "internal server error" })
-            console.error("error getting a url: ", error)
+            error.message =  + error.message
+            logger.error("error getting a url. ", error)
             return
         }
     }

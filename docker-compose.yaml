@@ -1,24 +1,25 @@
 services:
-  server:
-    build: .
-    hostname: server
-    ports:
-      - 8080:8080
-    environment:
-      - PGHOST=db
-      - PGPASSWORD=1234
-      - PGUSER=postgres
-      - PGDATABASE=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=1234
-      - SESSION_SECRET=sus
-      - NODE_ENV=dev
-    depends_on:
-      db:
-        condition: service_healthy
-      redis-stack:
-        condition: service_healthy
+  # server:
+  #   build: .
+  #   hostname: server
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     - PGHOST=db
+  #     - PGPASSWORD=1234
+  #     - PGUSER=postgres
+  #     - PGDATABASE=postgres
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=1234
+  #     - SESSION_SECRET=sus
+  #     - NODE_ENV=dev
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis-stack:
+  #       condition: service_healthy
+
   redis-stack:
     image: redis/redis-stack:latest
     hostname: redis
@@ -50,6 +51,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   pg_admin:
     image: dpage/pgadmin4:latest
     container_name: pg_admin
@@ -74,9 +76,33 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    
 
   grafana:
     image: grafana/grafana
     restart: unless-stopped
     ports:
       - '3000:3000'
+
+  alloy:
+    image: grafana/alloy
+    hostname: alloy
+    restart: unless-stopped
+    volumes:
+      - ./configs/alloy:/etc/alloy/
+      # - /home/ahmed/.kube/config:/config
+    ports:
+      - 12345:12345
+    command: >
+      run
+      --server.http.listen-addr=0.0.0.0:12345
+      --storage.path=/var/lib/alloy/data
+      /etc/alloy
+
+  loki:
+    image: grafana/loki
+    hostname: loki
+    restart: unless-stopped
+    ports:
+      - 3100:3100

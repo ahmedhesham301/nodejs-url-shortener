@@ -14,10 +14,10 @@ export async function initRedis() {
     try {
         await redisClient.connect()
     } catch (error) {
-        logger.error({
-            message: "Failed to connect to Redis",
-            error: error
+        logger.error("Failed to connect to cache.", {
+            reason: error.message,
+            stack: error.stack
         })
         process.exit(2)
     }
-}
+}   

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { logger } from "../../logger/logger.js";
+
 
 const reqBodySchema = z.object({
     email: z.email().max(254),
@@ -20,7 +22,10 @@ export async function validateBody(req, res, next) {
             return
         }
         res.status(500).json({ message: "internal server error" })
-        console.error("error validating auth request body: ", error)
+        logger.error("error validating auth request body.", {
+            reason: error.message,
+            stack: error.stack
+        })
         return
     }
 }

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { logger } from "../../logger/logger.js";
+
 
 const reqBodySchema = z.object({
     url: z.url()
@@ -11,11 +13,13 @@ export async function validateBody(req, res, next) {
     } catch (error) {
         if (error instanceof z.ZodError) {
             res.status(400).json({ message: "Invalid URL format", errors: error.errors })
-            console.error(error);
             return
         }
         res.status(500).json({ message: "internal server error" })
-        console.error("error validating request body: ", error)
+        logger.error("error validating request body",{
+            reason: error.message,
+            stack: error.stack
+        })
     }
 }
 
@@ -29,6 +33,9 @@ export async function validateParams(req,res,next) {
             return
         }
         res.status(500).json({ message: "internal server error" })
-        console.error("error validating url request params: ", error)
+        logger.error("error validating url request params.", {
+            reason: error.message,
+            stack: error.stack
+        })
     }
 }
