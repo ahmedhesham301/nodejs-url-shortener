@@ -13,7 +13,7 @@ export async function initDB() {
         })
     })
     try {
-        await pool.connect()
+        await pool.query("SELECT now()")
     } catch (error) {
         logger.error("Failed to connect to db.", {
             reason: error.message,
