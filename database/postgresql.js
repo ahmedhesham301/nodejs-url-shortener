@@ -14,3 +14,12 @@ export async function initDB() {
         process.exit(1)
     }
 }
+
+pool.on("error", (err) =>{
+    logger.error("PostgreSQL pool error" ,{
+        reason: err.message,
+        code: err.code,
+        cause: err.cause,
+        stack: err.stack
+    })
+})
