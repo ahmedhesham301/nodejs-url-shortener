@@ -1,0 +1,23 @@
+discovery.kubernetes "server_pods" {
+	role            = "pod"
+	kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
+
+	namespaces {
+		names = ["default"]
+	}
+	selectors {
+		role = "pod"
+		label = "app.kubernetes.io/name=server"
+	}
+}
+
+prometheus.scrape "api_metrics" {
+	targets = discovery.kubernetes.server_pods.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
+prometheus.remote_write "prometheus" {
+	endpoint {
+		url = "http://172.17.0.1:9090/api/v1/write"
+	}
+}
