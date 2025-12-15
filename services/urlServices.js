@@ -1,4 +1,3 @@
-import { object } from "zod";
 import { redisClient } from "../database/redis.js";
 
 export async function getCachedUrl(urlID) {
