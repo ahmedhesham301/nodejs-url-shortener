@@ -21,7 +21,7 @@ services:
   #       condition: service_healthy
 
   redis-stack:
-    image: redis/redis-stack:latest
+    image: redis/redis-stack
     hostname: redis
     ports:
       - "6379:6379"
@@ -53,7 +53,7 @@ services:
       retries: 5
 
   pg_admin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4
     container_name: pg_admin
     environment:
       - PGADMIN_DEFAULT_EMAIL=ahmed.hesham.farag@gmail.com
@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
 
   prometheus:
-    image: "prom/prometheus:latest"
+    image: prom/prometheus
     hostname: prometheus
     ports:
       - 9090:9090
@@ -106,3 +106,18 @@ services:
     restart: unless-stopped
     ports:
       - 3100:3100
+
+  
+  # tempo:
+  #   image: grafana/tempo
+  #   restart: unless-stopped
+  #   hostname: tempo
+  #   ports:
+  #     - 3200:3200
+  #     - 4318:4318
+  #     - 9095:9095
+  #   volumes:
+  #     - ./configs/tempo.yaml:/etc/tempo.yaml
+  #   command:
+  #     - '-target=all'
+  #     - '-config.file=/etc/tempo.yaml'

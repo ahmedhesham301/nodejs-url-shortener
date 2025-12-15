@@ -1,3 +1,4 @@
+import helmet from "helmet";
 import express from 'express'
 import morgan from 'morgan'
 import { initDB } from "./database/postgresql.js";
@@ -16,7 +17,7 @@ if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))
 }
 app.disable('x-powered-by')
-
+app.use(helmet());
 app.use(express.json())
 app.use(metricsMiddleware)
 app.use(sessionMiddleware)
