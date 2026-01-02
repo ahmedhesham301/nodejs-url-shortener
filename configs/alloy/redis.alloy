@@ -1,0 +1,9 @@
+prometheus.exporter.redis "redis" {
+    redis_addr = format("%s:6379", env("REDIS_IP"))
+    redis_password = "1234"
+}
+
+prometheus.scrape "redis_metrics" {
+	targets = prometheus.exporter.redis.redis.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}

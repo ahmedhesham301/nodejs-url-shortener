@@ -6,13 +6,13 @@ livedebugging {
 
 loki.write "docker_local" {
     endpoint {
-        url = "http://192.168.1.40:3100/loki/api/v1/push"
+        url = format("http://%s:3100/loki/api/v1/push", env("LOKI_IP"))
     }
 }
 
 discovery.kubernetes "all_pods" {
   role = "pod"
-  kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
+  // kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
   namespaces {
     names = ["default"]
   }
@@ -85,9 +85,9 @@ discovery.relabel "pods_logs" {
 loki.source.kubernetes "pods_logs" {
   targets    = discovery.relabel.pods_logs.output
   forward_to = [loki.process.pods_logs.receiver]
-  client {
-    kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
-  }
+  // client {
+  //   kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
+  // }
 }
 
 // loki.process receives log entries from other Loki components, applies one or more processing stages,

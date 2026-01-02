@@ -1,0 +1,9 @@
+prometheus.exporter.postgres "db" {
+    data_source_names = [ format("postgresql://postgres:1234@%s/postgres?sslmode=disable", env("DB_IP"))]
+}
+
+prometheus.scrape "db_metrics" {
+	targets = prometheus.exporter.postgres.db.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+

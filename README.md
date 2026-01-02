@@ -58,7 +58,9 @@ A full-featured URL shortener service built with Node.js, Express, PostgreSQL, a
 ```
 nodejs-url-shortener/
 ├── configs/
-│   └── prometheus.yml          # Prometheus configuration
+│   ├── init.sql                # Database schema 
+│   ├── prometheus.yml          # Prometheus scrape 
+│   └── alloy/                  # Grafana Alloy 
 ├── controller/
 │   ├── urlController.js        # URL-related request handlers
 │   └── userController.js       # User authentication handlers
@@ -125,12 +127,15 @@ SESSION_SECRET=your-secret-key-here-change-in-production
 
 # PostgreSQL Configuration
 # Default connection (if not specified, uses default pg Pool settings)
-# You can also set these explicitly:
+# You can also set these explicitly (examples):
 # PGHOST=localhost
 # PGPORT=5432
 # PGUSER=postgres
 # PGPASSWORD=1234
 # PGDATABASE=postgres
+
+# Optional: Node environment
+# NODE_ENV=dev
 ```
 
 **Important**: Replace `your-secret-key-here-change-in-production` with a strong, random secret key for production use.
@@ -150,6 +155,8 @@ This will start:
 - **pgAdmin** on port `81`
 - **Prometheus** on port `9090`
 - **Grafana** on port `3000`
+- **Grafana Alloy** on port `12345` (agent for metrics/logs shipping)
+- **Loki** on port `3100` (logs storage)
 
 ### Step 5: Verify Services
 
@@ -234,6 +241,7 @@ Content-Type: application/json
 ```
 
 **Note**: Login sets a session cookie. Subsequent requests will be authenticated automatically.
+The cookie name is `seid` (see `middlewares/session.js`).
 
 ### URL Endpoints
 
@@ -326,6 +334,16 @@ Access Grafana at `http://localhost:3000`:
 - Add Prometheus as a data source: `http://prometheus:9090`
 - Create dashboards to visualize application metrics
 
+### Grafana Alloy & Loki
+
+The stack includes **Grafana Alloy** as an observability agent and **Loki** for log storage:
+
+- Alloy configuration files are in `configs/alloy/` (`api.alloy` and `logs.alloy`).
+- Alloy is configured to:
+  - Scrape metrics from Kubernetes pods (for the `server` app) and remote-write them to Prometheus.
+  - Tail Kubernetes pod logs and forward them to a Loki instance.
+- Loki is exposed on `http://localhost:3100` (see `docker-compose.yaml`).
+
 ### pgAdmin
 
 Access pgAdmin at `http://localhost:81`:
@@ -362,12 +380,19 @@ Access RedisInsight at `http://localhost:8001` to:
 - `id` (VARCHAR PRIMARY KEY) - base62 encoded short URL ID
 - `user_id` (INTEGER NOT NULL REFERENCES users(id))
 - `url` (VARCHAR NOT NULL) - original long URL
+- `monitoring` (monitoring_type NOT NULL) - monitoring level per URL (`none`, `basic`, `detailed`)
+
+**Custom PostgreSQL types:**
+
+- `monitoring_type` ENUM: `'none'`, `'basic'`, `'detailed'`
+- `plan_type` ENUM: `'free'`, `'basic'`, `'pro'`
 
 ### Session Configuration
 
 - **Store**: Redis (with prefix `sess:`)
 - **Duration**: 30 days
 - **Secure**: false (set to true in production with HTTPS)
+- **Cookie Name**: `seid`
 
 ### Caching Strategy
 
