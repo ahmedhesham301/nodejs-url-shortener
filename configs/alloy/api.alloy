@@ -1,6 +1,6 @@
 discovery.kubernetes "server_pods" {
 	role            = "pod"
-	kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
+	// kubeconfig_file = "/etc/alloy/microk8s-config.yaml"
 
 	namespaces {
 		names = ["default"]
