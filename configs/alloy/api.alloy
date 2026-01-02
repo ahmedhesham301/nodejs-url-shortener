@@ -8,6 +8,7 @@ discovery.kubernetes "server_pods" {
 	selectors {
 		role = "pod"
 		label = "app.kubernetes.io/name=server"
+		field = "spec.nodeName=" + sys.env("NODE_NAME")
 	}
 }
 

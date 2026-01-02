@@ -16,7 +16,10 @@ discovery.kubernetes "all_pods" {
   namespaces {
     names = ["default"]
   }
-
+  selectors {
+    role = "pod"
+		field = "spec.nodeName=" + sys.env("NODE_NAME")
+  }
 }
 
 // discovery.relabel rewrites the label set of the input targets by applying one or more relabeling rules.
