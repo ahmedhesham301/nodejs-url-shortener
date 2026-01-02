@@ -1,5 +1,5 @@
 prometheus.exporter.redis "redis" {
-    redis_addr = format("%s:6379", env("REDIS_IP"))
+    redis_addr = format("%s:6379", env("REDIS_HOST"))
     redis_password = "1234"
 }
 

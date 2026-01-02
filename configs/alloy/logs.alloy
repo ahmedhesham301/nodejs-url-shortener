@@ -6,7 +6,7 @@ livedebugging {
 
 loki.write "docker_local" {
     endpoint {
-        url = format("http://%s:3100/loki/api/v1/push", env("LOKI_IP"))
+        url = format("http://%s:3100/loki/api/v1/push", env("LOKI_HOST"))
     }
 }
 

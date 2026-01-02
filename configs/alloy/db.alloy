@@ -1,5 +1,5 @@
 prometheus.exporter.postgres "db" {
-    data_source_names = [ format("postgresql://postgres:1234@%s/postgres?sslmode=disable", env("DB_IP"))]
+    data_source_names = [ format("postgresql://postgres:1234@%s/postgres?sslmode=disable", env("DB_HOST"))]
 }
 
 prometheus.scrape "db_metrics" {

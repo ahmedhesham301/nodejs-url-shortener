@@ -19,7 +19,7 @@ prometheus.scrape "api_metrics" {
 
 prometheus.remote_write "prometheus" {
 	endpoint {
-		url = format("http://%s:9090/api/v1/write", env("PROMETHEUS_IP"))
+		url = format("http://%s:9090/api/v1/write", env("PROMETHEUS_HOST"))
 	}
 }
 	
