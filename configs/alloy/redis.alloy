@@ -1,9 +1,30 @@
-prometheus.exporter.redis "redis" {
-    redis_addr = format("%s:6379", env("REDIS_HOST"))
-    redis_password = "1234"
+discovery.kubernetes "cache_pods" {
+	role = "pod"
+
+	namespaces {
+		names = ["default"]
+	}
+
+	selectors {
+		role  = "pod"
+		label = "app.kubernetes.io/name=cache"
+		field = "spec.nodeName=" + sys.env("NODE_NAME")
+	}
 }
 
-prometheus.scrape "redis_metrics" {
-	targets = prometheus.exporter.redis.redis.targets
-	forward_to = [prometheus.remote_write.prometheus.receiver]
+foreach "cache_pod" {
+	collection = discovery.kubernetes.cache_pods.targets
+	var        = "each"
+
+	template {
+		prometheus.exporter.redis "redis" {
+			redis_addr     = format("%s:6379", env("REDIS_HOST"))
+			redis_password = "1234"
+		}
+
+		prometheus.scrape "redis_metrics" {
+			targets    = prometheus.exporter.redis.redis.targets
+			forward_to = [prometheus.remote_write.prometheus.receiver]
+		}
+	}
 }
