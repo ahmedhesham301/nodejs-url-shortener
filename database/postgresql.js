@@ -5,6 +5,8 @@ export const pool = new Pool()
 
 export async function initDB() {
     try {
+        console.log(process.env.PGUSER)
+        console.log(process.env.PGPASSWORD)
         await pool.query("SELECT now()")
         
     } catch (error) {
