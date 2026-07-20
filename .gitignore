@@ -1,3 +1,4 @@
 node_modules
 .env
 microk8s-config.yaml
+ca
