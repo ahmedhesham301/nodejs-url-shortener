@@ -1,0 +1,60 @@
+discovery.kubernetes "cache_pods" {
+	role = "pod"
+
+	namespaces {
+		names = ["default"]
+	}
+
+	selectors {
+		role  = "pod"
+		label = "app=redis-ha"
+		field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+	}
+}
+
+discovery.relabel "cache_pods_relabel" {
+	targets = discovery.kubernetes.cache_pods.targets
+
+	// Label creation - "namespace" field from "__meta_kubernetes_namespace"
+	rule {
+		source_labels = ["__meta_kubernetes_pod_container_port_number"]
+		action        = "keep"
+		regex         = "6379"
+	}
+}
+
+foreach "cache_pod" {
+	collection = discovery.relabel.cache_pods_relabel.output
+	var        = "each"
+
+	template {
+		prometheus.exporter.redis "redis" {
+			redis_addr     = each["__meta_kubernetes_pod_ip"] + ":6379"
+			redis_password = "{{ .Values.redis.password }}"
+		}
+
+		prometheus.scrape "redis_metrics" {
+			targets    = prometheus.exporter.redis.redis.targets
+			forward_to = [prometheus.remote_write.prometheus.receiver]
+		}
+	}
+}
+
+discovery.kubernetes "redis_ha_proxy_pods" {
+	role = "pod"
+
+	namespaces {
+		names = ["default"]
+	}
+
+	selectors {
+		role  = "pod"
+		label = "app=redis-ha-haproxy"
+		field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+	}
+}
+
+prometheus.scrape "redis_ha_proxy_metrics" {
+	targets    = discovery.kubernetes.redis_ha_proxy_pods.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}

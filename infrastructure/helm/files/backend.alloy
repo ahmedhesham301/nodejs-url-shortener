@@ -1,0 +1,18 @@
+discovery.kubernetes "backend_pods" {
+	role = "pod"
+
+	namespaces {
+		names = ["default"]
+	}
+
+	selectors {
+		role  = "pod"
+		label = "app=backend"
+		field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+	}
+}
+
+prometheus.scrape "backend_metrics" {
+	targets    = discovery.kubernetes.backend_pods.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}

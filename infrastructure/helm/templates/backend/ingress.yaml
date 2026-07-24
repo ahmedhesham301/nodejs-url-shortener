@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-service
+  annotations:
+    load-balancer.hetzner.cloud/location: nbg1
+    load-balancer.hetzner.cloud/use-private-ip: "true"
+    load-balancer.hetzner.cloud/private-subnet-ip-range: "10.0.1.0/24"
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: LoadBalancer

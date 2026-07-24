@@ -1,0 +1,43 @@
+// discovery.kubernetes "db_pods" {
+// 	role = "pod"
+
+// 	namespaces {
+// 		names = ["default"]
+// 	}
+
+// 	selectors {
+// 		role  = "pod"
+// 		label = "app.kubernetes.io/name=db"
+// 		field = "spec.nodeName=" + sys.env("NODE_NAME")
+// 	}
+// }
+
+// foreach "db_pod" {
+// 	collection = discovery.kubernetes.db_pods.targets
+// 	var        = "each"
+
+// 	template {
+// 		prometheus.exporter.postgres "db" {
+// 			data_source_names = [format("postgresql://postgres:1234@%s/postgres?sslmode=disable", env("DB_HOST"))]
+// 		}
+
+// 		prometheus.scrape "db_metrics" {
+// 			targets    = prometheus.exporter.postgres.db.targets
+// 			forward_to = [prometheus.remote_write.prometheus.receiver]
+// 		}
+// 	}
+// }
+prometheus.exporter.postgres "db" {
+	data_source_names = [format(
+		"postgresql://%s:%s@%s/%s?sslmode=disable",
+		"{{ .Values.db.user }}",
+		"{{ .Values.db.password }}",
+		"{{ .Values.db.host }}",
+		"{{ .Values.db.database }}",
+	)]
+}
+
+prometheus.scrape "db_metrics" {
+	targets    = prometheus.exporter.postgres.db.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}

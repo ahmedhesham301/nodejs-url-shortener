@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  {{- if .Values.nodePort }}
+  type: NodePort
+  {{- end }}
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      {{- if .Values.nodePort }}
+      nodePort: 32562
+      {{- end }}
