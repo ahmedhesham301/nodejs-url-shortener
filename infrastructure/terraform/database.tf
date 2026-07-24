@@ -17,7 +17,7 @@ resource "hcloud_server" "database" {
 #cloud-config
 runcmd:
   - mkdir -p /opt/configs
-  - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/configs/init.sql -P /opt/configs
+  - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/configs/init.sql -P /opt/configs
   - |
     docker run -d \
       --name db \
