@@ -7,4 +7,4 @@ const router = Router();
 router.post('/auth/register', validateBody, register)
 router.post('/auth/login', validateBody, login)
 
-export default router;
+export default router; 
