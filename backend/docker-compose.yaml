@@ -20,21 +20,21 @@ services:
   #     redis-stack:
   #       condition: service_healthy
 
-  # redis-stack:
-  #   image: redis/redis-stack
-  #   hostname: redis
-  #   ports:
-  #     - "6379:6379"
-  #     - "8001:8001"
-  #   environment:
-  #     REDIS_ARGS: "--requirepass 1234"
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "redis-cli -a 1234 ping"]
-  #     interval: 10s
-  #     timeout: 3s
-  #     retries: 3
-  #     start_period: 5s
+  redis-stack:
+    image: redis/redis-stack
+    hostname: redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    environment:
+      REDIS_ARGS: "--requirepass 1234"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a 1234 ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
   db:
     image: postgres:18
@@ -109,19 +109,19 @@ services:
       - 3100:3100
 
   
-  # tempo:
-  #   image: grafana/tempo
-  #   restart: unless-stopped
-  #   hostname: tempo
-  #   ports:
-  #     - 3200:3200
-  #     - 4318:4318
-  #     - 9095:9095
-  #   volumes:
-  #     - ./configs/tempo.yaml:/etc/tempo.yaml
-  #   command:
-  #     - '-target=all'
-  #     - '-config.file=/etc/tempo.yaml'
+  tempo:
+    image: grafana/tempo
+    restart: unless-stopped
+    hostname: tempo
+    ports:
+      - 3200:3200
+      - 4318:4318
+      - 9095:9095
+    volumes:
+      - ./configs/tempo.yaml:/etc/tempo.yaml
+    command:
+      - '-target=all'
+      - '-config.file=/etc/tempo.yaml'
 
   nginx:
     image: nginx

@@ -1,40 +1,29 @@
+stream_over_http_enabled: true
+
 server:
   http_listen_port: 3200
+  log_level: info
 
 distributor:
-  receivers:                           # this configuration will listen on all ports and protocols that tempo is capable of.
-    jaeger:                            # the receives all come from the OpenTelemetry collector.  more configuration information can
-      protocols:                       # be found there: https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver
-        thrift_http:                   #
-        grpc:                          # for a production deployment you should only enable the receivers you need!
-        thrift_binary:
-        thrift_compact:
-    zipkin:
+  receivers:
     otlp:
       protocols:
-        http:
         grpc:
-    opencensus:
-
-metrics_generator:
-  registry:
-    external_labels:
-      source: tempo
-      cluster: docker-compose
-  storage:
-    path: /var/tempo/generator/wal
-    remote_write:
-      - url: http://prometheus:9090/api/v1/write
-        send_exemplars: true
+          endpoint: "tempo:4317"
+        http:
+          endpoint: "tempo:4318"
+  #log_received_spans:
+  #    enabled: true
+  #  log_discarded_spans:
+  #    enabled: true
 
 storage:
   trace:
-    backend: local                    # backend configuration to use
+    backend: local
     wal:
-      path: /var/tempo/wal             # where to store the wal locally
+      path: /var/tempo/wal # where to store the wal locally
     local:
-      path: /var/tempo/traces
+      path: /var/tempo/blocks
 
-querier:
-  frontend_worker:
-    frontend_address: tempo:9095
+usage_report:
+  reporting_enabled: false

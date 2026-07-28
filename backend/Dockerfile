@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD [ "node" ,"server.js"]
+CMD [ "node", "--require '@opentelemetry/auto-instrumentations-node/register'","server.js"]
