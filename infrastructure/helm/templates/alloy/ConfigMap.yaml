@@ -9,3 +9,4 @@ data:
 {{ tpl (.Files.Get "files/db.alloy") . | indent 4 }}
 {{ tpl (.Files.Get "files/logs.alloy") . | indent 4 }}
 {{ tpl (.Files.Get "files/redis.alloy") . | indent 4 }}
+{{ tpl (.Files.Get "files/traces.alloy") . | indent 4 }}

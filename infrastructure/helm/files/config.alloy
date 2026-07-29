@@ -13,3 +13,9 @@ prometheus.remote_write "prometheus" {
 		url = format("http://%s:%s/api/v1/write", "{{ .Values.prometheus.host }}", "{{ .Values.prometheus.port }}")
 	}
 }
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "10.42.0.1:4317"
+  }
+}

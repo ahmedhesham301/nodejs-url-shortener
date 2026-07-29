@@ -1,0 +1,25 @@
+apiVersion: v1
+data:
+  NODE_ENV: dev
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://url-alloy.default.svc.cluster.local:4317
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+  PGDATABASE: postgres
+  PGHOST: 10.42.0.1
+  PGPASSWORD: "1234"
+  PGUSER: postgres
+  REDIS_HOST: url-redis-ha-haproxy.default.svc.cluster.local
+  REDIS_PASSWORD: "1234"
+  REDIS_PORT: "6379"
+  SESSION_SECRET: sus
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: url
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: "2026-07-28T22:14:14Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: backend-cf
+  namespace: default
+  resourceVersion: "335903"
+  uid: 9dc87578-9c13-4ca8-af91-9d6fada38256

@@ -115,7 +115,7 @@ services:
     hostname: tempo
     ports:
       - 3200:3200
-      - 4318:4318
+      - 4317:4317
       - 9095:9095
     volumes:
       - ./configs/tempo.yaml:/etc/tempo.yaml
