@@ -10,12 +10,17 @@ loki.write "loki" {
 
 prometheus.remote_write "prometheus" {
 	endpoint {
-		url = format("http://%s:%s/api/v1/write", "{{ .Values.prometheus.host }}", "{{ .Values.prometheus.port }}")
+		url = format("http://%s:%s/prometheus/api/v1/write", "{{ .Values.prometheus.host }}", "{{ .Values.prometheus.port }}")
 	}
 }
 
 otelcol.exporter.otlp "tempo" {
-  client {
-    endpoint = "10.42.0.1:4317"
-  }
+	client {
+		endpoint = "10.42.0.1:4317"
+
+		tls {
+			insecure             = true
+			insecure_skip_verify = true
+		}
+	}
 }
