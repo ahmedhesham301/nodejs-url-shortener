@@ -1,10 +1,16 @@
 import bcrypt from "bcrypt"
 import { save, findByEmail } from "../models/userModel.js";
+import { trace } from "@opentelemetry/api";
+
+const tracer = trace.getTracer();
 
 export async function registerUser(email,password) {
+    const span = tracer.startSpan("registerUser");
+
     const passwordHash = await bcrypt.hash(password, 10);
     await save(email, passwordHash)
     
+    span.end()
 }
 
 export async function authenticateUser(email, password) {

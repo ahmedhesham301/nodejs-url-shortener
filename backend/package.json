@@ -29,5 +29,9 @@
     "redis": "^5.10.0",
     "winston": "^3.19.0",
     "zod": "^4.1.13"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "protobufjs@7.6.5": true
   }
 }
