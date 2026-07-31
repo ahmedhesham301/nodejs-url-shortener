@@ -5,13 +5,14 @@ import { trace } from "@opentelemetry/api";
 const tracer = trace.getTracer("backend");
 
 export async function registerUser(email, password) {
-    const span = tracer.startActiveSpan("registerUser");
-    try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        await save(email, passwordHash)
-    } finally {
-        span.end()
-    }
+    return tracer.startActiveSpan("registerUser", async (span) => {
+        try {
+            const passwordHash = await bcrypt.hash(password, 10);
+            await save(email, passwordHash);
+        } finally {
+            span.end();
+        }
+    });
 }
 
 export async function authenticateUser(email, password) {
@@ -35,5 +36,5 @@ export async function authenticateUser(email, password) {
     } finally {
         span.end()
     }
-    
+
 }

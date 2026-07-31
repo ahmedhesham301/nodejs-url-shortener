@@ -4,17 +4,18 @@ import { trace } from "@opentelemetry/api";
 const tracer = trace.getTracer("backend");
 
 export async function save(email, passwordHash) {
-    const span = tracer.startActiveSpan("save");
-    try {
-        const query = {
-            name: 'insert-user',
-            text: 'INSERT INTO users(email,password_hash) VALUES($1, $2);',
-            values: [email, passwordHash]
+    return tracer.startActiveSpan("save", async (span) => {
+        try {
+            const query = {
+                name: 'insert-user',
+                text: 'INSERT INTO users(email,password_hash) VALUES($1, $2);',
+                values: [email, passwordHash]
+            }
+            await pool.query(query);
+        } finally {
+            span.end();
         }
-        await pool.query(query) 
-    } finally {
-        span.end()
-    }
+    });
 }
 
 
