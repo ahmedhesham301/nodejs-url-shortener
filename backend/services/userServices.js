@@ -15,7 +15,7 @@ export async function registerUser(email, password) {
 }
 
 export async function authenticateUser(email, password) {
-    const span = tracer.startSpan("registerUser");
+    const span = tracer.startSpan("authenticateUser");
     try {
         const userData = await findByEmail(email)
 
