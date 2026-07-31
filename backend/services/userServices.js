@@ -5,7 +5,7 @@ import { trace } from "@opentelemetry/api";
 const tracer = trace.getTracer("backend");
 
 export async function registerUser(email, password) {
-    const span = tracer.startSpan("registerUser");
+    const span = tracer.startActiveSpan("registerUser");
     try {
         const passwordHash = await bcrypt.hash(password, 10);
         await save(email, passwordHash)
@@ -15,7 +15,7 @@ export async function registerUser(email, password) {
 }
 
 export async function authenticateUser(email, password) {
-    const span = tracer.startSpan("authenticateUser");
+    const span = tracer.startActiveSpan("authenticateUser");
     try {
         const userData = await findByEmail(email)
 

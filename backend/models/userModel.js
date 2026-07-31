@@ -4,7 +4,7 @@ import { trace } from "@opentelemetry/api";
 const tracer = trace.getTracer("backend");
 
 export async function save(email, passwordHash) {
-    const span = tracer.startSpan("save");
+    const span = tracer.startActiveSpan("save");
     try {
         const query = {
             name: 'insert-user',
@@ -19,7 +19,7 @@ export async function save(email, passwordHash) {
 
 
 export async function findByEmail(email) {
-    const span = tracer.startSpan("findByEmail");
+    const span = tracer.startActiveSpan("findByEmail");
 
     try {
         const query = {
