@@ -7,7 +7,14 @@ const tracer = trace.getTracer("backend");
 export async function registerUser(email, password) {
     return tracer.startActiveSpan("registerUser", async (span) => {
         try {
-            const passwordHash = await bcrypt.hash(password, 10);
+            const passwordHash = await tracer.startActiveSpan("bcrypt.hash", async (hashSpan) => {
+                try {
+                    return await bcrypt.hash(password, 10);
+                } finally {
+                    hashSpan.end();
+                }
+            });
+
             await save(email, passwordHash);
         } finally {
             span.end();
