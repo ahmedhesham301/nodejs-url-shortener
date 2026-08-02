@@ -33,7 +33,7 @@ export async function authenticateUser(email, password) {
                 throw err
             }
 
-            const isMatch = tracer.startActiveSpan("bcrypt.compare", async (compareSpan) => {
+            const isMatch = await tracer.startActiveSpan("bcrypt.compare", async (compareSpan) => {
                 try {
                     return await bcrypt.compare(password, userData.passwordHash)
                 } finally {
