@@ -2,6 +2,7 @@ import base62 from '@sindresorhus/base62';
 import crypto from "node:crypto"
 import { save, findByID, getUrlsByUserID } from "../models/urlModel.js";
 import { cacheUrl, getCachedUrl } from "../services/urlServices.js";
+import { incrementViews } from "../services/analyticsServices.js";
 import { logger } from "../logger/logger.js";
 
 
@@ -52,7 +53,7 @@ export async function getUrl(req, res) {
                 logger.info("url not found", { code: 404, path: req.params.urlId })
                 return
             }
-            await cacheUrl(req.params.urlId, urlRecord.url,urlRecord.monitoring)
+            await cacheUrl(req.params.urlId, urlRecord.url, urlRecord.monitoring)
             res.redirect(urlRecord.url)
             return
         } catch (error) {
@@ -63,6 +64,7 @@ export async function getUrl(req, res) {
         }
     }
     res.redirect(urlRecord.url)
+    await incrementViews(req.params.urlId, urlRecord.monitoring)
 }
 
 
