@@ -23,25 +23,32 @@ export async function registerUser(email, password) {
 }
 
 export async function authenticateUser(email, password) {
-    const span = tracer.startActiveSpan("authenticateUser");
-    try {
-        const userData = await findByEmail(email)
+    return tracer.startActiveSpan("authenticateUser", async (span) => {
+        try {
+            const userData = await findByEmail(email)
 
-        if (userData == null) {
-            let err = new Error("Email not found");
-            err.code = 'EMAIL_NOT_FOUND'
+            if (userData == null) {
+                let err = new Error("Email not found");
+                err.code = 'EMAIL_NOT_FOUND'
+                throw err
+            }
+
+            const isMatch = tracer.startActiveSpan("bcrypt.compare", async (compareSpan) => {
+                try {
+                    return await bcrypt.compare(password, userData.passwordHash)
+                } finally {
+                    compareSpan.end()
+                }
+            })
+            if (isMatch) {
+                return userData
+            }
+
+            let err = new Error("wrong password");
+            err.code = 'WRONG_PASSWORD'
             throw err
+        } finally {
+            span.end()
         }
-
-        if (await bcrypt.compare(password, userData.passwordHash)) {
-            return userData
-        }
-
-        let err = new Error("wrong password");
-        err.code = 'WRONG_PASSWORD'
-        throw err
-    } finally {
-        span.end()
-    }
-
+    })
 }
