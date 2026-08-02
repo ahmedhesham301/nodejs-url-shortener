@@ -1,15 +1,15 @@
-import bcrypt from "bcrypt"
 import { save, findByEmail } from "../models/userModel.js";
 import { trace } from "@opentelemetry/api";
+import argon2 from "argon2";
 
 const tracer = trace.getTracer("backend");
 
 export async function registerUser(email, password) {
     return tracer.startActiveSpan("registerUser", async (span) => {
         try {
-            const passwordHash = await tracer.startActiveSpan("bcrypt.hash", async (hashSpan) => {
+            const passwordHash = await tracer.startActiveSpan("hash", async (hashSpan) => {
                 try {
-                    return await bcrypt.hash(password, 10);
+                    return await argon2.hash(password);
                 } finally {
                     hashSpan.end();
                 }
@@ -33,9 +33,9 @@ export async function authenticateUser(email, password) {
                 throw err
             }
 
-            const isMatch = await tracer.startActiveSpan("bcrypt.compare", async (compareSpan) => {
+            const isMatch = await tracer.startActiveSpan("comparePasswordAndHash", async (compareSpan) => {
                 try {
-                    return await bcrypt.compare(password, userData.passwordHash)
+                    return await argon2.verify(userData.passwordHash, password)
                 } finally {
                     compareSpan.end()
                 }
