@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-hostnames-cf
+data:
+  lokiHost: {{ .Values.loki.host | quote }}
+  lokiPort: {{ .Values.loki.port | quote }}
+
+  prometheusHost: {{ .Values.prometheus.host | quote }}
+  prometheusPort: {{ .Values.prometheus.port | quote }}
+
+  tempoHost: {{ .Values.tempo.host | quote}}
+  tempoPort: {{ .Values.tempo.port | quote}}
+
+  dbHost: {{ .Values.db.host | quote }}
+  dbUser: {{ .Values.db.user | quote }}
+  dbPassword: {{ .Values.db.password | quote }}
+  dbDatabase: {{ .Values.db.database | quote }}

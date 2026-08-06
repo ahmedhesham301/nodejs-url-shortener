@@ -4,19 +4,19 @@ livedebugging {
 
 loki.write "loki" {
 	endpoint {
-		url = format("http://%s:%s/loki/api/v1/push", "{{ .Values.loki.host }}", "{{ .Values.loki.port }}")
+		url = format("http://%s:%s/loki/api/v1/push", sys.env("lokiHost"), sys.env("lokiPort"))
 	}
 }
 
 prometheus.remote_write "prometheus" {
 	endpoint {
-		url = format("http://%s:%s/prometheus/api/v1/write", "{{ .Values.prometheus.host }}", "{{ .Values.prometheus.port }}")
+		url = format("http://%s:%s/prometheus/api/v1/write", sys.env("prometheusHost"), sys.env("prometheusPort"))
 	}
 }
 
 otelcol.exporter.otlp "tempo" {
 	client {
-		endpoint = "10.42.0.1:4317"
+		endpoint = format("%s:%s", sys.env("tempoHost"), sys.env("tempoPort"))
 
 		tls {
 			insecure             = true

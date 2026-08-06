@@ -51,7 +51,7 @@ alloy:
     stabilityLevel: "experimental"
     configMap:
       create: false
-      name: alloy-cf
+      name: alloy-config-cf
       key: config.alloy
     extraPorts:
     - name: "grpc"
@@ -62,9 +62,16 @@ alloy:
       port: 4318
       targetPort: 4318
       protocol: "TCP"
+    envFrom:
+      - configMapRef:
+          name: alloy-hostnames-cf
         
 nodePort: false
 
 otel:
   hostname: url-alloy.default.svc.cluster.local
+  port: 4317
+
+tempo:
+  host: 10.42.0.1
   port: 4317

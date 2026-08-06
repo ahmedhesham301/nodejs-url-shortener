@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: alloy-cf
+  name: alloy-config-cf
 data:
   config.alloy: |-
 {{ tpl (.Files.Get "files/config.alloy") . | indent 4 }}

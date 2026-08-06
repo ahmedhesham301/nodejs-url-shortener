@@ -30,10 +30,10 @@
 prometheus.exporter.postgres "db" {
 	data_source_names = [format(
 		"postgresql://%s:%s@%s/%s?sslmode=disable",
-		"{{ .Values.db.user }}",
-		"{{ .Values.db.password }}",
-		"{{ .Values.db.host }}",
-		"{{ .Values.db.database }}",
+		sys.env("dbUser"),
+		sys.env("dbPassword"),
+		sys.env("dbHost"),
+		sys.env("dbDatabase"),
 	)]
 }
 
