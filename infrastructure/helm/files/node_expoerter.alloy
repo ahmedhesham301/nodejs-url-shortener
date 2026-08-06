@@ -1,0 +1,10 @@
+prometheus.exporter.unix "host" {
+	procfs_path = "/host/proc"
+	sysfs_path  = "/host/sys"
+}
+
+// Configure a prometheus.scrape component to collect unix metrics.
+prometheus.scrape "host_metrics" {
+	targets    = prometheus.exporter.unix.host.targets
+	forward_to = [prometheus.remote_write.prometheus.receiver]
+}

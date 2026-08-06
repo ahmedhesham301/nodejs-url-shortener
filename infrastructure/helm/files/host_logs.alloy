@@ -1,0 +1,25 @@
+local.file_match "host_logs" {
+	path_targets = [
+		{
+			__path__ = "/var/log/**/*.log",
+			job      = "host-logs",
+			host     = sys.env("HOSTNAME"),
+		},
+	]
+}
+
+discovery.relabel "filter_pods_containers" {
+	targets = local.file_match.host_logs.targets
+
+	rule {
+		source_labels = ["__path__"]
+		regex         = "/var/log/(pods|containers)/.*"
+		action        = "drop"
+	}
+}
+
+loki.source.file "host_logs" {
+	targets = discovery.relabel.filter_pods_containers.output
+
+	forward_to = [loki.write.loki.receiver]
+}

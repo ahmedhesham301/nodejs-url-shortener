@@ -39,14 +39,22 @@ redis-ha:
   persistentVolume:
     enabled: false
 
-
-
 env: "dev"
 alloy:
   controller:
     podLabels:
       app: alloy
-  
+    volumes:
+      extra:
+        - name: host-proc
+          hostPath:
+            path: /proc
+            type: Directory
+        - name: host-sys
+          hostPath:
+            path: /sys
+            type: Directory
+
   alloy:
     stabilityLevel: "experimental"
     configMap:
@@ -54,18 +62,31 @@ alloy:
       name: alloy-config-cf
       key: config.alloy
     extraPorts:
-    - name: "grpc"
-      port: 4317
-      targetPort: 4317
-      protocol: "TCP"
-    - name: "http"
-      port: 4318
-      targetPort: 4318
-      protocol: "TCP"
+      - name: "grpc"
+        port: 4317
+        targetPort: 4317
+        protocol: "TCP"
+      - name: "http"
+        port: 4318
+        targetPort: 4318
+        protocol: "TCP"
     envFrom:
       - configMapRef:
           name: alloy-hostnames-cf
-        
+    mounts:
+      varlog: true
+      dockercontainers: true
+      extra:
+        - name: host-proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: host-sys
+          mountPath: /host/sys
+          readOnly: true
+    securityContext:
+      privileged: true
+      runAsUser: 0
+
 nodePort: false
 
 otel:
