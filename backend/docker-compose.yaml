@@ -50,6 +50,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_URI: "db:5432/postgres?sslmode=disable"
+      DATA_SOURCE_USER: "postgres"
+      DATA_SOURCE_PASS: "1234"
+    depends_on:
+      - db
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
@@ -67,22 +76,21 @@ services:
     ports:
       - 9090:9090
     restart: unless-stopped
-    # volumes:
-      # - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
       # - ./rules:/rules
       # - ./data:/prometheus/data
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.enable-lifecycle'
-      - '--web.enable-remote-write-receiver'
-      - '--web.external-url=/prometheus/'
-    
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+      - "--web.enable-remote-write-receiver"
+      - "--web.external-url=/prometheus/"
 
   grafana:
     image: grafana/grafana
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
       GF_SERVER_ROOT_URL: /grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
@@ -108,7 +116,6 @@ services:
     ports:
       - 3100:3100
 
-  
   tempo:
     image: grafana/tempo
     restart: unless-stopped
@@ -120,8 +127,8 @@ services:
     volumes:
       - ./configs/tempo.yaml:/etc/tempo.yaml
     command:
-      - '-target=all'
-      - '-config.file=/etc/tempo.yaml'
+      - "-target=all"
+      - "-config.file=/etc/tempo.yaml"
 
   nginx:
     image: nginx
