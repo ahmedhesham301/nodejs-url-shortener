@@ -58,23 +58,31 @@ export async function getUrl(req, res) {
             return
         } catch (error) {
             res.status(500).json({ message: "internal server error" })
-            error.message =  + error.message
+            error.message = + error.message
             logger.error("error getting a url. ", error)
             return
         }
     }
+
     res.redirect(urlRecord.url)
-    await incrementViews(req.params.urlId, urlRecord.monitoring)
+
+    try {
+        await incrementViews(req.params.urlId, urlRecord.monitoring)
+    } catch (error) {
+        error.message = + error.message
+        logger.error(`error incrementing views of a ${urlRecord.monitoring}. `, error)
+        return
+    }
 }
 
 
 export async function getUserUrls(req, res) {
     const urls = await getUrlsByUserID(req.session.userID)
-    if(urls == null) {
+    if (urls == null) {
         res.status(201).json({
-            message:"no urls found",
-            count : 0,
-            urls :[]
+            message: "no urls found",
+            count: 0,
+            urls: []
         })
         return
     }

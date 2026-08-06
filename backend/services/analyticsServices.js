@@ -5,5 +5,5 @@ const viewIncrementers = {
     minutely: incrementMinutelyViews
 };
 export async function incrementViews(urlId, monitoringType) {
-    viewIncrementers[monitoringType](urlId, monitoringType)
+    await viewIncrementers[monitoringType](urlId, monitoringType)
 }
