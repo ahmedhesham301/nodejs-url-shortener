@@ -21,5 +21,14 @@ runcmd:
   - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/configs/nginx.conf -P /app/configs
   - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /app/configs/ca/nginx-selfsigned.key -out /app/configs/ca/nginx-selfsigned.crt -subj '/C=EG/ST=Cairo/L=Cairo'
   - docker compose -f /app/docker-compose.yaml up -d grafana loki pgadmin prometheus nginx
+  - |
+    docker run -d \
+      --name postgres-exporter \
+      --network app_default \
+      -e DATA_SOURCE_URI="${tolist(hcloud_server.database.network)[0].ip}:5432/postgres?sslmode=disable" \
+      -e DATA_SOURCE_USER="postgres" \
+      -e DATA_SOURCE_PASS="1234" \
+      quay.io/prometheuscommunity/postgres-exporter:latest
+    
 EOT
 }
