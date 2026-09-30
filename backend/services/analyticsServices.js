@@ -10,7 +10,7 @@ export async function incrementViews(urlId, monitoringType) {
         topic: 'url-views',
         messages: [
             {
-                key: String(urlId),
+                key: urlId,
                 value: JSON.stringify({ monitoringType: monitoringType }),
             },
 
