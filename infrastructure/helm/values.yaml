@@ -96,3 +96,7 @@ otel:
 tempo:
   host: 10.42.0.1
   port: 4317
+
+kafka:
+  host: 10.42.0.1
+  port: 9095

@@ -4,6 +4,9 @@ import { save, findByID, getUrlsByUserID } from "../models/urlModel.js";
 import { cacheUrl, getCachedUrl } from "../services/urlServices.js";
 import { incrementViews } from "../services/analyticsServices.js";
 import { logger } from "../logger/logger.js";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
+
+const tracer = trace.getTracer("backend");
 
 
 export async function createUrl(req, res) {
@@ -54,12 +57,12 @@ export async function getUrl(req, res) {
                 return
             }
             await cacheUrl(req.params.urlId, urlRecord.url, urlRecord.monitoring)
-            res.redirect(urlRecord.url)
-            return
         } catch (error) {
             res.status(500).json({ message: "internal server error" })
-            error.message = + error.message
-            logger.error("error getting a url. ", error)
+            logger.error("error getting a url. ", {
+                reason: error.message,
+                stack: error.stack
+            })
             return
         }
     }
@@ -67,10 +70,23 @@ export async function getUrl(req, res) {
     res.redirect(urlRecord.url)
 
     try {
-        await incrementViews(req.params.urlId, urlRecord.monitoring)
+        await tracer.startActiveSpan("incrementViews", async (span) => {
+            try {
+                await incrementViews(req.params.urlId, urlRecord.monitoring)
+            } catch (error) {
+                span.recordException(error)
+                span.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
+                throw error
+            } finally {
+                span.end()
+            }
+        })
+
     } catch (error) {
-        error.message = + error.message
-        logger.error(`error incrementing views of a ${urlRecord.monitoring}. `, error)
+        logger.error(`error incrementing views of a ${urlRecord.monitoring}. `, {
+            reason: error.message,
+            stack: error.stack
+        })
         return
     }
 }

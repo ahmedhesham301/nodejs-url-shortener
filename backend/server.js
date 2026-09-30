@@ -8,9 +8,11 @@ import authRouter from "./routes/authRoutes.js"
 import { sessionMiddleware } from "./middlewares/session.js";
 import { metricsMiddleware } from "./middlewares/metrics.js";
 import { register } from "prom-client";
+import { initKafka } from "./kafka/client.js";
 
 await initDB()
 await initRedis()
+await initKafka()
 
 const app = express()
 if (process.env.NODE_ENV === 'dev') {
@@ -33,4 +35,4 @@ app.use(urlRouter)
 
 
 
-app.listen(8080,'0.0.0.0')
+app.listen(8080, '0.0.0.0')

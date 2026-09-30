@@ -148,3 +148,41 @@ services:
         condition: service_started
       loki:
         condition: service_started
+
+  kafka:
+    image: apache/kafka:latest
+    restart: unless-stopped
+
+    ports:
+      - "9094:9094"
+      - "9095:9095"
+
+    environment:
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      KAFKA_LISTENERS: "INTERNAL://:9092,EXTERNAL://:9094,CONTROLLER://:9093,kubernetes://172.18.0.10:9095"
+
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092,EXTERNAL://localhost:9094, kubernetes://172.18.0.10:9095"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,kubernetes:PLAINTEXT"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  kafka-ui:
+    image: redpandadata/console:latest
+    restart: unless-stopped
+    ports:
+      - 9025:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+      KAFKA_BROKERS: "kafka:9092"
