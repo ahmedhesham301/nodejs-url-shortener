@@ -4,8 +4,8 @@ import exec from "k6/execution";
 
 
 export const options = {
-    vus: 5,
-    duration: '30s',
+    vus: 40,
+    duration: '2h',
     // Iterations: 1,
 };
 
@@ -42,7 +42,7 @@ export function setup() {
 
     const createURLPayload = JSON.stringify({
         url: "https://www.bbc.com/",
-        monitoring: "none"
+        monitoring: "daily"
     });
     const params2 = {
         headers: {
@@ -60,9 +60,15 @@ export function setup() {
 }
 
 export default function (data) {
-    const createRes = http.post(`${host}/create`, createURLPayload, params)
-    check(createRes, { 'response code for create url was 201': (res) => res.status == 201 })
-    if (createRes.status !== 201) {
-        console.log(createRes)
-    }
+    // setup() returns the created URL's ID.
+    const res = http.get(`${host}/${data}`, {
+        redirects: 0,
+        responseCallback: http.expectedStatuses(302),
+    });
+
+    check(res, {
+        'returns a redirect': (r) => r.status === 302,
+        'redirects to the correct URL': (r) =>
+            r.headers['Location'] === 'https://www.bbc.com/',
+    });
 }
