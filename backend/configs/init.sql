@@ -14,26 +14,10 @@ CREATE TABLE IF NOT EXISTS urls (
     url VARCHAR NOT NULL,
     monitoring monitoring_type NOT NULL DEFAULT 'daily'
 );
-CREATE TABLE IF NOT EXISTS url_daily_views (
+CREATE TABLE IF NOT EXISTS url_views (
     id BIGSERIAL PRIMARY KEY,
     url_id VARCHAR NOT NULL REFERENCES urls(id),
-    day DATE NOT NULL DEFAULT CURRENT_DATE,
+    time DATE NOT NULL DEFAULT CURRENT_DATE,
     count INTEGER NOT NULL DEFAULT 1,
-    UNIQUE (url_id, day)
-);
-
-CREATE TABLE IF NOT EXISTS url_hourly_views (
-    id BIGSERIAL PRIMARY KEY,
-    url_id VARCHAR NOT NULL REFERENCES urls(id),
-    hour TIMESTAMPTZ NOT NULL DEFAULT date_trunc('hour', now()),
-    count INTEGER NOT NULL DEFAULT 1,
-    UNIQUE (url_id, hour)
-);
-
-CREATE TABLE IF NOT EXISTS url_minutely_views (
-    id BIGSERIAL PRIMARY KEY,
-    url_id VARCHAR NOT NULL REFERENCES urls(id),
-    minute TIMESTAMPTZ NOT NULL DEFAULT date_trunc('minute', now()),
-    count INTEGER NOT NULL DEFAULT 1,
-    UNIQUE (url_id, minute)
+    UNIQUE (url_id, time)
 );

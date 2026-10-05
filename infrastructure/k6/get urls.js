@@ -4,7 +4,7 @@ import exec from "k6/execution";
 
 
 export const options = {
-    vus: 40,
+    vus: 1,
     duration: '2h',
     // Iterations: 1,
 };
@@ -42,7 +42,7 @@ export function setup() {
 
     const createURLPayload = JSON.stringify({
         url: "https://www.bbc.com/",
-        monitoring: "daily"
+        monitoring: "minutely"
     });
     const params2 = {
         headers: {
