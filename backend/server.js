@@ -15,13 +15,13 @@ await initRedis()
 await initKafka()
 
 const app = express()
+app.use(metricsMiddleware)
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))
 }
 app.disable('x-powered-by')
 app.use(helmet());
 app.use(express.json())
-app.use(metricsMiddleware)
 app.use(sessionMiddleware)
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);

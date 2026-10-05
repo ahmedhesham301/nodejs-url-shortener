@@ -1,13 +1,52 @@
 import http from 'k6/http';
-import { check, group, sleep } from 'k6';
-import exec from "k6/execution";
+import { check, sleep } from 'k6';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
 
+const getOnlyMetrics = [
+    'http_reqs',
+    'http_req_failed',
+    'http_req_duration',
+    'http_req_blocked',
+    'http_req_connecting',
+    'http_req_tls_handshaking',
+    'http_req_sending',
+    'http_req_waiting',
+    'http_req_receiving',
+];
+const metricFilters = Object.fromEntries(
+    getOnlyMetrics.map((name) => [name, `${name}{method:GET}`]),
+);
+// Network byte metrics have scenario tags, but no HTTP method tag.
+metricFilters.data_received = 'data_received{scenario:default}';
+metricFilters.data_sent = 'data_sent{scenario:default}';
 
 export const options = {
-    vus: 40,
-    duration: '2h',
+    vus: 1500,
+    duration: '10m',
     // Iterations: 1,
+    // Empty thresholds make k6 aggregate these filtered metrics without a limit.
+    thresholds: Object.fromEntries(
+        Object.values(metricFilters).map((name) => [name, []]),
+    ),
 };
+
+export function handleSummary(data) {
+    // Only the console summary is filtered; raw metric outputs retain setup traffic.
+    const metrics = { ...data.metrics };
+    for (const name of Object.keys(metrics)) {
+        if (name.startsWith('http_') || name.startsWith('data_received') || name.startsWith('data_sent')) {
+            delete metrics[name];
+        }
+    }
+    for (const [name, filteredName] of Object.entries(metricFilters)) {
+        if (data.metrics[filteredName]) {
+            metrics[name] = data.metrics[filteredName];
+        }
+    }
+    return {
+        stdout: textSummary({ ...data, metrics }, { indent: ' ', enableColors: false }),
+    };
+}
 
 const host = __ENV.HOSTNAME;
 // register
