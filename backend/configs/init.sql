@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS urls (
 CREATE TABLE IF NOT EXISTS url_views (
     id BIGSERIAL PRIMARY KEY,
     url_id VARCHAR NOT NULL REFERENCES urls(id),
-    time DATE NOT NULL DEFAULT CURRENT_DATE,
+    time timestamptz NOT NULL,
     count INTEGER NOT NULL DEFAULT 1,
     UNIQUE (url_id, time)
 );

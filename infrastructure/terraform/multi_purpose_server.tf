@@ -19,8 +19,10 @@ runcmd:
   - mkdir -p /app/configs/ca
   - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/docker-compose.yaml -P /app
   - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/configs/nginx.conf -P /app/configs
+  - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/configs/flink/pipeline.sql -P /app/configs/flink
+  - wget https://raw.githubusercontent.com/ahmedhesham301/nodejs-url-shortener/refs/heads/main/backend/flink.Dockerfile -P /app
   - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /app/configs/ca/nginx-selfsigned.key -out /app/configs/ca/nginx-selfsigned.crt -subj '/C=EG/ST=Cairo/L=Cairo'
-  - docker compose -f /app/docker-compose.yaml up -d grafana loki pgadmin prometheus nginx
+  - docker compose -f /app/docker-compose.yaml up -d --build grafana loki pgadmin prometheus nginx kafka-ui kafka jobmanager taskmanager
   - |
     docker run -d \
       --name postgres-exporter \

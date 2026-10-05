@@ -1,5 +1,8 @@
 FROM flink:2.2.1-java17
 
+# Keep JDBC TIMESTAMP values aligned with the SQL job's UTC windows.
+ENV JAVA_TOOL_OPTIONS="-Duser.timezone=UTC"
+
 USER root
 
 RUN wget -q -P /opt/flink/lib/ \

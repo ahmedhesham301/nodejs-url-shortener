@@ -4,7 +4,7 @@ import exec from "k6/execution";
 
 
 export const options = {
-    vus: 1,
+    vus: 40,
     duration: '2h',
     // Iterations: 1,
 };
@@ -40,10 +40,7 @@ export function setup() {
         return;
     }
 
-    const createURLPayload = JSON.stringify({
-        url: "https://www.bbc.com/",
-        monitoring: "minutely"
-    });
+    const monitoringTypes = ['minutely', 'hourly', 'daily'];
     const params2 = {
         headers: {
             "Content-Type": "application/json",
@@ -51,17 +48,26 @@ export function setup() {
         responseCallback: http.expectedStatuses(201),
     };
 
-    const createRes = http.post(`${host}/create`, createURLPayload, params2)
-    if (createRes.status !== 201) {
-        console.log(createRes.body)
-        return
+    const urlIds = [];
+    for (const monitoring of monitoringTypes) {
+        const createURLPayload = JSON.stringify({
+            url: "https://www.bbc.com/",
+            monitoring,
+        });
+        const createRes = http.post(`${host}/create`, createURLPayload, params2);
+        if (createRes.status !== 201) {
+            console.log(createRes.body);
+            return;
+        }
+        urlIds.push(JSON.parse(createRes.body).id);
     }
-    return JSON.parse(createRes.body).id
+    return urlIds;
 }
 
 export default function (data) {
-    // setup() returns the created URL's ID.
-    const res = http.get(`${host}/${data}`, {
+    // setup() returns one URL ID for each monitoring interval.
+    const urlId = data[Math.floor(Math.random() * data.length)];
+    const res = http.get(`${host}/${urlId}`, {
         redirects: 0,
         responseCallback: http.expectedStatuses(302),
     });
@@ -71,4 +77,6 @@ export default function (data) {
         'redirects to the correct URL': (r) =>
             r.headers['Location'] === 'https://www.bbc.com/',
     });
+
+    sleep(Math.random() * 3);
 }
