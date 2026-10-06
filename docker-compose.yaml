@@ -1,46 +1,46 @@
 services:
-  frotned:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    ports:
-      - 5173:5173
+  # frotned:
+  #   build:
+  #     context: frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 5173:5173
 
-  server:
-    image: ahmedhesham301/nodejs-url-shortener-backend
-    ports:
-      - 8080:8080
-    environment:
-      - PGHOST=db
-      - PGPASSWORD=1234
-      - PGUSER=postgres
-      - PGDATABASE=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=1234
-      - SESSION_SECRET=sus
-      - NODE_ENV=dev
-    depends_on:
-      db:
-        condition: service_healthy
-      redis-stack:
-        condition: service_healthy
+  # server:
+  #   image: ahmedhesham301/nodejs-url-shortener-backend
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     - PGHOST=db
+  #     - PGPASSWORD=1234
+  #     - PGUSER=postgres
+  #     - PGDATABASE=postgres
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=1234
+  #     - SESSION_SECRET=sus
+  #     - NODE_ENV=dev
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis-stack:
+  #       condition: service_healthy
 
-  redis-stack:
-    image: redis/redis-stack
-    hostname: redis
-    ports:
-      - "6379:6379"
-      - "8001:8001"
-    environment:
-      REDIS_ARGS: "--requirepass 1234"
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli -a 1234 ping" ]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
+  # redis-stack:
+  #   image: redis/redis-stack
+  #   hostname: redis
+  #   ports:
+  #     - "6379:6379"
+  #     - "8001:8001"
+  #   environment:
+  #     REDIS_ARGS: "--requirepass 1234"
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "redis-cli -a 1234 ping" ]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 3
+  #     start_period: 5s
 
   db:
     image: postgres:18
@@ -56,7 +56,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  kafka:
+    image: apache/kafka:latest
+    restart: unless-stopped
+    environment:
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    
+  kafka-ui:
+    image: redpandadata/console:latest
+    restart: unless-stopped
+    ports:
+      - 9025:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+      KAFKA_BROKERS: "kafka:9092"
   pgadmin:
     image: dpage/pgadmin4
     environment:
