@@ -252,3 +252,8 @@ services:
   #       FLINK_PROPERTIES=
   #       jobmanager.rpc.address: jobmanager
   #       rest.address: jobmanager
+  kafka-exporter:
+    image: danielqsj/kafka-exporter 
+    command: ["--kafka.server=kafka:9092"]
+    ports:
+      - 9308:9308
