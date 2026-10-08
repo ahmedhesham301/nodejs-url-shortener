@@ -3,8 +3,8 @@ resource "hcloud_server" "database" {
   name        = "database"
   location    = "nbg1"
   image       = "docker-ce"
-  server_type = "cpx22"
-  ssh_keys = [ "ahmed@ahmed-82k1" ]
+  server_type = "cx23"
+  ssh_keys = [ "ahmed@cachyos-x8664" ]
   network {
     network_id = hcloud_network.network.id
   }

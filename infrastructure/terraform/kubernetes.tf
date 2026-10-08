@@ -21,10 +21,10 @@ module "kubernetes" {
   cilium_gateway_api_enabled = true
 
   control_plane_nodepools = [
-    { name = "control", type = "cpx22", location = "nbg1", count = 1 }
+    { name = "control", type = "cx23", location = "nbg1", count = 1 }
   ]
   worker_nodepools = [
-    { name = "worker", type = "cpx22", location = "nbg1", count = 1 }
+    { name = "worker", type = "cx23", location = "nbg1", count = 1 }
   ]
   
 }   

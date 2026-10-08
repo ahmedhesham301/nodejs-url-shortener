@@ -222,8 +222,6 @@ services:
     volumes:
       - ./configs/flink/pipeline.sql:/pipeline.sql:ro
     depends_on:
-      db:
-        condition: service_healthy
       kafka:
         condition: service_started
 
