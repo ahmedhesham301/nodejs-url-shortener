@@ -7,9 +7,10 @@ import urlRouter from "./routes/urlRoutes.js";
 import authRouter from "./routes/authRoutes.js"
 import { sessionMiddleware } from "./middlewares/session.js";
 import { metricsMiddleware } from "./middlewares/metrics.js";
-import { register } from "prom-client";
+import { register, collectDefaultMetrics } from "prom-client";
 import { initKafka } from "./kafka/client.js";
 
+collectDefaultMetrics({ register });
 await initDB()
 await initRedis()
 await initKafka()
