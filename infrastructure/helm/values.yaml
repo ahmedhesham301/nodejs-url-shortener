@@ -1,25 +1,129 @@
+crds:
+  enabled: false
+
+services:
+  redis:
+    host: "url-redis-ha-haproxy.default.svc.cluster.local"
+    port: "6379"
+    password: "1234"
+
+  postgresql:
+    host: "postgresql-rw.postgresql.svc.cluster.local"
+    password: "1234"
+    user: "postgres"
+    database: "postgres"
+
+  prometheus:
+    host: "url-kube-prometheus-stack-prometheus.monitoring.svc.cluster.local"
+    port: "9090"
+
+  loki:
+    host: "url-loki-gateway.default.svc.cluster.local"
+    port: "80"
+
+  otel:
+    hostname: url-alloy.default.svc.cluster.local
+    port: 4317
+
+  tempo:
+    host: "url-tempo.default.svc.cluster.local"
+    port: 4317
+    httpPort: 3200
+
+  kafka:
+    host: "kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local"
+    port: 9092
+
 scaling:
   minReplicas: 1
   maxReplicas: 12
 
-db:
-  host: "10.42.0.1"
-  password: "1234"
-  user: "postgres"
-  database: "postgres"
-
-redis:
-  host: "url-redis-ha-haproxy.default.svc.cluster.local"
-  port: "6379"
-  password: "1234"
-
-prometheus:
-  host: "10.42.0.1"
-  port: "9090"
-
 loki:
-  host: "10.42.0.1"
-  port: "3100"
+  # Keep cache reservations small enough for the local single-node cluster.
+  # The chart adds memory overhead to these Memcached allocations.
+  chunksCache:
+    allocatedMemory: 512
+  resultsCache:
+    allocatedMemory: 128
+
+  loki:
+    # Single-tenant setup: Grafana and Alloy do not send X-Scope-OrgID.
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+
+    storage:
+      type: filesystem
+
+    pattern_ingester:
+      enabled: true
+
+    limits_config:
+      allow_structured_metadata: true
+      volume_enabled: true
+
+    rulerConfig:
+      enable_api: true
+  lokiCanary:
+      enabled: true
+      push: false
+      # Alloy's Kubernetes API source labels the container, but not stdout/stderr.
+      extraArgs:
+        - -streamname=container
+        - -streamvalue=canary
+        # Exclude diagnostic messages mixed into the Kubernetes log stream.
+        - '-query-append=|~ "^[0-9]+ "'
+
+  minio:
+    enabled: false
+
+  deploymentMode: Monolithic
+
+  singleBinary:
+    replicas: 1
+
+    persistence:
+      enabled: true
+      size: 10Gi
+      # storageClass: your-storage-class
+
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomPlanner:
+    replicas: 0
+  bloomBuilder:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
 
 session:
   secret: "sus"
@@ -89,14 +193,249 @@ alloy:
 
 nodePort: false
 
-otel:
-  hostname: url-alloy.default.svc.cluster.local
-  port: 4317
+kube-prometheus-stack:
+  namespaceOverride: monitoring
+  grafana:
+    namespaceOverride: monitoring
+    adminUser: admin
+    adminPassword: admin
+    envFromConfigMaps:
+      - name: grafana-hostnames-cf
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Loki
+            type: loki
+            access: proxy
+            url: http://${lokiHost}:${lokiPort}
+          - name: Tempo
+            type: tempo
+            access: proxy
+            url: http://${tempoHost}:${tempoPort}
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: kafka
+            options:
+              path: /var/lib/grafana/dashboards/kafka
+          - name: redis
+            options:
+              path: /var/lib/grafana/dashboards/redis
+          - name: postgresql
+            options:
+              path: /var/lib/grafana/dashboards/postgresql
+          - name: loki
+            options:
+              path: /var/lib/grafana/dashboards/loki
+          - name: tempo
+            options:
+              path: /var/lib/grafana/dashboards/tempo
+          - name: nodejs
+            options:
+              path: /var/lib/grafana/dashboards/nodejs
+          - name: backend
+            options:
+              path: /var/lib/grafana/dashboards/backend
+  
+    # Mount the local single-binary dashboards through the existing providers.
+    # Their queries use raw metrics; no mixin recording rules are required.
+    dashboardsConfigMaps:
+      loki: '{{ .Release.Name }}-observability-loki'
+      tempo: '{{ .Release.Name }}-observability-tempo'
+      nodejs: '{{ .Release.Name }}-observability-nodejs'
+      backend: '{{ .Release.Name }}-observability-backend'
 
-tempo:
-  host: 10.42.0.1
-  port: 4317
+    dashboards:
+      kafka:
+        kminion-cluster:
+          gnetId: 14012
+          revision: 1
+          datasource: Prometheus
 
-kafka:
-  host: 10.42.0.1
-  port: 9092
+        kminion-topic:
+          gnetId: 14013
+          revision: 1
+          datasource: Prometheus
+
+        kminion-consumer-groups:
+          gnetId: 14014
+          revision: 1
+          datasource: Prometheus
+
+      redis:
+        redis-overview:
+          gnetId: 11835
+          revision: 1
+          datasource: Prometheus
+      postgresql:
+        postgresql-overview:
+          gnetId: 20417
+          revision: 4
+          datasource: Prometheus
+
+  prometheus-node-exporter:
+    namespaceOverride: monitoring
+  alertmanager:
+    namespaceOverride: monitoring
+  kube-state-metrics:
+    namespaceOverride: monitoring
+
+  prometheus:
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
+    additionalServiceMonitors:
+      - name: backend
+        # Used by the Node.js dashboard's application filter.
+        targetLabels:
+          - app.kubernetes.io/name
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: backend
+        endpoints:
+          - port: http
+            path: /metrics
+            interval: 15s
+
+      - name: redis-ha-haproxy
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app: redis-ha
+            component: haproxy
+        endpoints:
+          - port: http-exporter-port
+            path: /metrics
+            interval: 15s
+
+      - name: loki
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+            app.kubernetes.io/component: single-binary
+          matchExpressions:
+            - key: prometheus.io/service-monitor
+              operator: NotIn
+              values:
+                - "false"
+        endpoints:
+          - port: http-metrics
+            path: /metrics
+            interval: 15s
+
+      - name: loki-canary
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+            app.kubernetes.io/component: canary
+        endpoints:
+          - port: http-metrics
+            path: /metrics
+            interval: 30s
+
+      - name: loki-chunks-cache
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+            app.kubernetes.io/component: memcached-chunks-cache
+        endpoints:
+          - port: http-metrics
+            path: /metrics
+            interval: 30s
+
+      - name: loki-gateway-exporter
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+            app.kubernetes.io/component: gateway
+        endpoints:
+          - port: http-metrics
+            path: /metrics
+            interval: 30s
+
+      - name: loki-results-cache
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+            app.kubernetes.io/component: memcached-results-cache
+        endpoints:
+          - port: http-metrics
+            path: /metrics
+            interval: 30s
+
+      - name: tempo
+        namespaceSelector:
+          matchNames:
+            - default
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: tempo
+          matchExpressions:
+            - key: prometheus.io/service-monitor
+              operator: NotIn
+              values:
+                - "false"
+        endpoints:
+          - port: tempo-prom-metrics
+            path: /metrics
+            interval: 15s
+
+kminion:
+  kminion:
+    config:
+      kafka:
+        brokers:
+          - kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+
+  serviceMonitor:
+    create: true
+    additionalLabels:
+      release: url
+
+strimzi-kafka-operator:
+  watchNamespaces:
+    - kafka
+
+
+pgadmin4:
+  env:
+    email: ahmed.hesham.farag@gmail.com
+    password: "1234"
+  pgpass:
+    existingSecret: postgresql-app
+    key: pgpass
+  serverDefinitions:
+    enabled: true
+    servers:
+      "1":
+        Name: PostgreSQL
+        Group: Servers
+        # Must match the hostname in the postgresql-app Secret's pgpass entry.
+        Host: postgresql-rw
+        Port: 5432
+        MaintenanceDB: app
+        Username: app
+        SSLMode: prefer
+        ConnectionParameters:
+          passfile: .pgpass

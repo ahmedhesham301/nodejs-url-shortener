@@ -1,0 +1,27 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgresql
+  namespace: default
+spec:
+  instances: 1
+
+  storage:
+    size: 10Gi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: postgresql-cluster
+  namespace: monitoring
+  labels:
+    release: {{ .Release.Name | quote }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      cnpg.io/cluster: postgresql
+  podMetricsEndpoints:
+    - port: metrics

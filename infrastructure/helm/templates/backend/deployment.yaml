@@ -3,15 +3,15 @@ kind: Deployment
 metadata:
   name: backend-deployment
   labels:
-    app: backend
+    app.kubernetes.io/name: backend
 spec:
   selector:
     matchLabels:
-      app: backend
+      app.kubernetes.io/name: backend
   template:
     metadata:
       labels:
-        app: backend
+        app.kubernetes.io/name: backend
     spec:
       containers:
         - name: backend
@@ -21,6 +21,27 @@ spec:
           envFrom:
             - configMapRef:
                 name: backend-cf
+          env:
+            - name: PGHOST 
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: host
+            - name: PGPASSWORD 
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: password
+            - name: PGUSER 
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: user
+            - name: PGDATABASE 
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: dbname
       resources:
         requests:
           cpu: "100m"

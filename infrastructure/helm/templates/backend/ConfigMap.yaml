@@ -3,17 +3,17 @@ apiVersion: v1
 metadata:
   name: backend-cf
 data:
-  PGHOST: {{ quote .Values.db.host }}
-  PGPASSWORD: {{ quote .Values.db.password }}
-  PGUSER: {{ quote .Values.db.user }}
-  PGDATABASE: {{ quote .Values.db.database }}
-  REDIS_HOST: {{ quote .Values.redis.host }}
-  REDIS_PORT: {{ quote .Values.redis.port }}
-  REDIS_PASSWORD: {{ quote .Values.redis.password }}
+  # PGHOST: {{ quote .Values.services.postgresql.host }}
+  # PGPASSWORD: {{ quote .Values.services.postgresql.password }}
+  # PGUSER: {{ quote .Values.services.postgresql.user }}
+  # PGDATABASE: {{ quote .Values.services.postgresql.database }}
+  REDIS_HOST: {{ quote .Values.services.redis.host }}
+  REDIS_PORT: {{ quote .Values.services.redis.port }}
+  REDIS_PASSWORD: {{ quote .Values.services.redis.password }}
   SESSION_SECRET: {{ quote .Values.session.secret }}
   NODE_ENV: {{ quote .Values.env }}
-  OTEL_EXPORTER_OTLP_ENDPOINT: {{ printf "http://%s:%v" .Values.otel.hostname .Values.otel.port }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ printf "http://%s:%v" .Values.services.otel.hostname .Values.services.otel.port }}
   OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
   OTEL_SERVICE_NAME: "backend"
-  KAFKA_HOST: {{ quote .Values.kafka.host }}
-  KAFKA_PORT: {{ quote .Values.kafka.port }}
+  KAFKA_HOST: {{ quote .Values.services.kafka.host }}
+  KAFKA_PORT: {{ quote .Values.services.kafka.port }}

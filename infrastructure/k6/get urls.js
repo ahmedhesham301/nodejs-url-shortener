@@ -21,7 +21,7 @@ metricFilters.data_received = 'data_received{scenario:default}';
 metricFilters.data_sent = 'data_sent{scenario:default}';
 
 export const options = {
-    vus: 40,
+    vus: 3,
     duration: '30m',
     // Iterations: 1,
     // Empty thresholds make k6 aggregate these filtered metrics without a limit.

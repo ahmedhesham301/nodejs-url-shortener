@@ -3,16 +3,19 @@ kind: ConfigMap
 metadata:
   name: alloy-hostnames-cf
 data:
-  lokiHost: {{ .Values.loki.host | quote }}
-  lokiPort: {{ .Values.loki.port | quote }}
+  lokiHost: {{ .Values.services.loki.host | quote }}
+  lokiPort: {{ .Values.services.loki.port | quote }}
 
-  prometheusHost: {{ .Values.prometheus.host | quote }}
-  prometheusPort: {{ .Values.prometheus.port | quote }}
+  prometheusHost: {{ .Values.services.prometheus.host | quote }}
+  prometheusPort: {{ .Values.services.prometheus.port | quote }}
 
-  tempoHost: {{ .Values.tempo.host | quote}}
-  tempoPort: {{ .Values.tempo.port | quote}}
+  tempoHost: {{ .Values.services.tempo.host | quote}}
+  tempoPort: {{ .Values.services.tempo.port | quote}}
 
-  dbHost: {{ .Values.db.host | quote }}
-  dbUser: {{ .Values.db.user | quote }}
-  dbPassword: {{ .Values.db.password | quote }}
-  dbDatabase: {{ .Values.db.database | quote }}
+  # dbHost: {{ .Values.services.postgresql.host | quote }}
+  # dbUser: {{ .Values.services.postgresql.user | quote }}
+  # dbPassword: {{ .Values.services.postgresql.password | quote }}
+  # dbDatabase: {{ .Values.services.postgresql.database | quote }}
+
+  kafkaHost: {{ .Values.services.kafka.host | quote }}
+  kafkaPort: {{ .Values.services.kafka.port | quote }}

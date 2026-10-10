@@ -1,0 +1,59 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  namespace: default
+  name: flink
+spec:
+  imagePullPolicy: Always
+  podTemplate:
+    spec:
+      containers:
+        - name: flink-main-container
+          env:
+            - name: kafkaHost
+              value: {{ .Values.services.kafka.host | quote }}
+            - name: kafkaPort
+              value: {{ .Values.services.kafka.port | quote }}
+            - name: dbhost
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: host
+            - name: dbpassword
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: password
+            - name: dbuser
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: user
+            - name: dbName
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-app
+                  key: dbname
+        
+  image: ahmedhesham301/flink-v2.3-java17-kafka-postgresql-sqlrunner:latest
+  flinkVersion: v2_3
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "2"
+  serviceAccount: flink
+  jobManager:
+    resources:
+      requests:
+        memory: "2048Mi"
+        cpu: "1"
+  taskManager:
+    resources:
+      requests:
+        memory: "2048Mi"
+        cpu: "1"
+  job:
+    jarURI: local:///opt/flink/usrlib/sql-runner.jar
+    args: ["--sqlfile", "/opt/flink/usrlib/sql-scripts/pipeline.sql", "--udfpath", "/opt/flink/usrlib/jars"]
+
+    parallelism: 2
+    upgradeMode: stateless
+    state: running

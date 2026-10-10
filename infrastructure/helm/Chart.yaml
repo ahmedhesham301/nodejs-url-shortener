@@ -7,9 +7,36 @@ appVersion: "1.16.0"
 
 dependencies:
   - name: alloy
-    version: 1.10.0
+    version: 1.13.0
     repository: https://grafana.github.io/helm-charts 
   - name: redis-ha
     version: 4.39.0
     repository: https://dandydeveloper.github.io/charts/
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 92.0.0
+  - name: loki
+    repository: https://grafana-community.github.io/helm-charts/
+    version: 18.13.8
+  - name: tempo
+    repository: https://grafana-community.github.io/helm-charts/
+    version: 3.1.0
+  - name: strimzi-kafka-operator
+    version: 1.2.0
+    repository: oci://quay.io/strimzi-helm
+  - name: kminion
+    version: 0.15.3
+    repository: https://charts.redpanda.com
+  - name: pgadmin4
+    version: 1.70.4
+    repository: https://helm.runix.net/
+  # - name: cert-manager
+  #   version: v1.21.2
+  #   repository: oci://quay.io/jetstack/charts/cert-manager:v1.21.2
+  # - name: flink-kubernetes-operator
+  #   version: 1.16.1
+  #   repository: https://downloads.apache.org/flink/flink-kubernetes-operator-1.16.1
+  # - name: cloudnative-pg
+  #   version: 0.29.1
+  #   repository: https://cloudnative-pg.io/charts/
 

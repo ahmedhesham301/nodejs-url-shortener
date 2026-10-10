@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-hostnames-cf
+  namespace: monitoring 
+data:
+  lokiHost: {{ .Values.services.loki.host | quote }}
+  lokiPort: {{ .Values.services.loki.port | quote }}
+
+  tempoHost: {{ .Values.services.tempo.host | quote}}
+  tempoPort: {{ .Values.services.tempo.httpPort | quote }}

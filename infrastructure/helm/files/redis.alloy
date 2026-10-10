@@ -30,31 +30,14 @@ foreach "cache_pod" {
 	template {
 		prometheus.exporter.redis "redis" {
 			redis_addr     = each["__meta_kubernetes_pod_ip"] + ":6379"
-			redis_password = "{{ .Values.redis.password }}"
+			redis_password = "{{ .Values.services.redis.password }}"
 		}
 
 		prometheus.scrape "redis_metrics" {
 			targets    = prometheus.exporter.redis.redis.targets
+			scrape_interval = "15s"
 			forward_to = [prometheus.remote_write.prometheus.receiver]
 		}
 	}
 }
 
-discovery.kubernetes "redis_ha_proxy_pods" {
-	role = "pod"
-
-	namespaces {
-		names = ["default"]
-	}
-
-	selectors {
-		role  = "pod"
-		label = "app=redis-ha-haproxy"
-		field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
-	}
-}
-
-prometheus.scrape "redis_ha_proxy_metrics" {
-	targets    = discovery.kubernetes.redis_ha_proxy_pods.targets
-	forward_to = [prometheus.remote_write.prometheus.receiver]
-}

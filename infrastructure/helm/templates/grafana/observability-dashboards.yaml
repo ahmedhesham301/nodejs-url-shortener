@@ -1,0 +1,16 @@
+{{- $stack := index .Values "kube-prometheus-stack" -}}
+{{- $namespace := $stack.grafana.namespaceOverride | default $stack.namespaceOverride | default .Release.Namespace -}}
+{{- range $component := list "loki" "tempo" "nodejs" "backend" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-observability-{{ $component }}
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: observability-dashboards
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+data:
+{{- ($.Files.Glob (printf "files/dashboards/%s-*.json" $component)).AsConfig | nindent 2 }}
+{{- end }}

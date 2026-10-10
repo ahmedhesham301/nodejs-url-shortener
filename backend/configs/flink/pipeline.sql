@@ -16,7 +16,7 @@ CREATE TABLE url_views_kafka (
     'connector' = 'kafka',
     'topic' = 'url-views',
     -- Internal listener in backend/docker-compose.yaml.
-    'properties.bootstrap.servers' = 'kafka:29092',
+    'properties.bootstrap.servers' = '${kafkaHost}:${kafkaPort}',
     'properties.group.id' = 'flink-url-views',
     'scan.startup.mode' = 'earliest-offset',
     'key.format' = 'raw',
@@ -37,10 +37,10 @@ CREATE TABLE url_views_postgres (
     PRIMARY KEY (url_id, `time`) NOT ENFORCED
 ) WITH (
     'connector' = 'jdbc',
-    'url' = 'jdbc:postgresql://db:5432/postgres',
+    'url' = 'jdbc:postgresql://${dbhost}:5432/${dbName}',
     'table-name' = 'url_views',
-    'username' = 'postgres',
-    'password' = '1234',
+    'username' = '${dbuser}',
+    'password' = '${dbpassword}',
     'sink.buffer-flush.max-rows' = '1000',
     'sink.buffer-flush.interval' = '1 s',
     'sink.max-retries' = '3'
@@ -61,6 +61,9 @@ WHERE monitoringType = 'daily' AND url_id IS NOT NULL AND url_id <> '';
 -- Submit all three branches as one streaming job. Each event belongs to
 -- its URL's monitoring interval; time stores the inclusive window start.
 -- COUNT returns BIGINT; the cast matches the existing PostgreSQL INTEGER.
+-- Flink 2.3 requires a conflict policy when it cannot infer a unique key
+-- across the window branches. A URL has one monitoring interval; fail if
+-- different window results ever collide on (url_id, time).
 EXECUTE STATEMENT SET
 BEGIN
 
@@ -69,20 +72,23 @@ SELECT url_id, window_start, CAST(COUNT(*) AS INT)
 FROM TABLE(
     TUMBLE(TABLE minutely_events, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
 )
-GROUP BY url_id, window_start, window_end;
+GROUP BY url_id, window_start, window_end
+ON CONFLICT DO ERROR;
 
 INSERT INTO url_views_postgres
 SELECT url_id, window_start, CAST(COUNT(*) AS INT)
 FROM TABLE(
     TUMBLE(TABLE hourly_events, DESCRIPTOR(event_time), INTERVAL '1' HOUR)
 )
-GROUP BY url_id, window_start, window_end;
+GROUP BY url_id, window_start, window_end
+ON CONFLICT DO ERROR;
 
 INSERT INTO url_views_postgres
 SELECT url_id, window_start, CAST(COUNT(*) AS INT)
 FROM TABLE(
     TUMBLE(TABLE daily_events, DESCRIPTOR(event_time), INTERVAL '1' DAY)
 )
-GROUP BY url_id, window_start, window_end;
+GROUP BY url_id, window_start, window_end
+ON CONFLICT DO ERROR;
 
 END;
